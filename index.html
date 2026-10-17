@@ -1,0 +1,387 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>辦公型鏡片處方單</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one centered prescription card, distance chips on top, an OD/OS grid like a lab Rx slip, live summary below */
+:root {
+  --bg: #eef2f3;
+  --paper: #ffffff;
+  --ink: #1b2a30;
+  --muted: #5b6d74;
+  --line: #d3dde0;
+  --accent: #0f6e7a;
+  --accent-soft: #dcefF1;
+  --od: #b4442f;
+  --os: #2d5fa8;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11181b; --paper: #1a2428; --ink: #e4ecee; --muted: #93a5ab; --line: #2f3d42;
+  --accent: #4fb8c4; --accent-soft: #1d3a3f; --od: #ec8a75; --os: #84aef0; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11181b; --paper: #1a2428; --ink: #e4ecee; --muted: #93a5ab; --line: #2f3d42;
+  --accent: #4fb8c4; --accent-soft: #1d3a3f; --od: #ec8a75; --os: #84aef0; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px; }
+.sheet { max-width: 640px; margin: 0 auto; background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+  padding: 28px clamp(16px, 4vw, 32px); display: grid; gap: 28px; }
+header { display: grid; gap: 4px; }
+h1 { margin: 0; font-size: 1.5rem; font-weight: 700; letter-spacing: .02em; text-wrap: balance; }
+.sub { margin: 0; color: var(--muted); font-size: .9rem; }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 12px; min-width: 0; }
+legend { font-weight: 700; font-size: .95rem; padding: 0; margin-bottom: 12px; }
+legend small { font-weight: 400; color: var(--muted); margin-left: 6px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip span { display: inline-flex; align-items: center; gap: 4px; padding: 8px 18px; border: 1px solid var(--line); border-radius: 999px;
+  cursor: pointer; font-family: var(--font-num); font-size: .95rem; user-select: none; transition: background .15s, border-color .15s; }
+.chip span:hover { border-color: var(--accent); }
+.chip input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+.chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.custom { display: flex; align-items: center; gap: 8px; }
+.custom[hidden] { display: none; }
+.custom { flex-wrap: wrap; gap: 12px; }
+.srow { display: flex; gap: 8px; min-width: 0; }
+.srow .num { flex: 1; }
+.sign { display: flex; flex: none; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.sign button { width: 36px; border: 0; background: var(--paper); color: var(--muted); font-family: var(--font-num); font-size: 1.15rem; cursor: pointer; }
+.sign button + button { border-left: 1px solid var(--line); }
+.sign button[aria-pressed="true"] { background: var(--accent); color: var(--paper); }
+.sign button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.slider { flex: 1 1 200px; max-width: 360px; display: grid; gap: 2px; }
+.slider input { width: 100%; accent-color: var(--accent); margin: 0; }
+.ticks { display: flex; justify-content: space-between; font-family: var(--font-num); font-size: .75rem; color: var(--muted); }
+#distVal { font-family: var(--font-num); font-size: 1.1rem; font-weight: 500; color: var(--accent); min-width: 4.5em; }
+
+.rx { display: grid; max-width: 360px; grid-template-columns: auto minmax(0, 1fr); gap: 10px 12px; align-items: center; }
+.rx .h { font-size: .8rem; color: var(--muted); letter-spacing: .06em; text-align: center; }
+.rx .h b { display: block; font-family: var(--font-num); font-size: 1rem; color: var(--ink); letter-spacing: 0; }
+.eye { font-weight: 700; font-size: .95rem; white-space: nowrap; display: grid; line-height: 1.25; }
+.eye small { font-family: var(--font-num); font-weight: 500; font-size: .75rem; letter-spacing: .08em; }
+.eye.od small { color: var(--od); } .eye.os small { color: var(--os); }
+
+.num { display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--bg); min-width: 0; }
+.num:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.num button { flex: none; width: 30px; border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; cursor: pointer; }
+.num button:hover { color: var(--accent); background: var(--accent-soft); }
+.num button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+input[type="number"] { font-family: var(--font-num); font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--ink);
+  background: transparent; border: 0; text-align: center; padding: 9px 2px; width: 100%; min-width: 0; -moz-appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"]:focus { outline: none; }
+.custom .num { width: 9em; }
+.invalid { border-color: var(--od) !important; }
+
+.tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { font: inherit; font-size: .88rem; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+.btn.primary:hover { filter: brightness(1.08); color: var(--paper); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.brands { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.brand { font: inherit; display: grid; gap: 4px; justify-items: center; padding: 32px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); cursor: pointer; transition: border-color .15s, background .15s; }
+.brand b { font-family: var(--font-num); font-size: 1.8rem; font-weight: 500; letter-spacing: .06em; }
+.brand span { color: var(--muted); font-size: .9rem; }
+.brand:hover { border-color: var(--accent); background: var(--accent-soft); }
+.brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.back { justify-self: start; font: inherit; font-size: .88rem; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; }
+.back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tag { display: inline-block; vertical-align: middle; margin-left: 10px; font-size: .8rem; font-weight: 500; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.calc { display: grid; gap: 12px; background: var(--accent-soft); border-radius: 8px; padding: 18px 20px; }
+.calc h2 { margin: 0; font-size: .95rem; }
+.warn { margin: 0; padding: 12px 14px; border-radius: 6px; background: var(--paper); border: 1px solid var(--od); color: var(--od); font-weight: 700; }
+.warn small { display: block; font-weight: 400; font-family: var(--font-num); color: var(--muted); }
+.formula { margin: 0; font-family: var(--font-num); font-size: .9rem; color: var(--accent); }
+.res { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.cell { display: grid; gap: 2px; background: var(--paper); border-radius: 6px; padding: 12px 14px; }
+.cell b { font-family: var(--font-num); font-size: 1.6rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.cell .eye { display: flex; gap: 6px; align-items: baseline; }
+.raw { display: block; font-family: var(--font-num); font-size: .78rem; color: var(--muted); }
+.summary { border-top: 1px dashed var(--line); padding-top: 20px; display: grid; gap: 12px; }
+.summary h2 { margin: 0; font-size: .95rem; }
+pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6px; font-family: var(--font-num); font-size: .9rem;
+  line-height: 1.7; white-space: pre-wrap; overflow-x: auto; user-select: all; }
+.sum { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.sum .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 14px; background: var(--bg); font-size: .85rem; color: var(--muted); }
+.sum .meta b { color: var(--ink); font-family: var(--font-num); font-weight: 500; }
+.sum table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.sum th, .sum td { padding: 10px 14px; text-align: left; border-top: 1px solid var(--line); }
+.sum thead th { font-size: .78rem; font-weight: 500; color: var(--muted); letter-spacing: .04em; }
+.sum td.v { font-family: var(--font-num); text-align: right; }
+.sum thead th.v { text-align: right; }
+.sum tr.main th, .sum tr.main td { background: var(--accent-soft); }
+.sum tr.main th { color: var(--accent); font-size: 1rem; }
+.sum tr.main td.v { font-size: 1.5rem; font-weight: 500; }
+.sum tr.sub th, .sum tr.sub td { font-size: .88rem; color: var(--muted); }
+.sum tr.bad td { color: var(--od); font-weight: 700; text-align: right; font-size: 1.1rem; }
+.sum td small, .sum th small { display: block; font-size: .72rem; font-weight: 400; color: var(--muted); font-family: var(--font-num); }
+.note { font-size: .82rem; color: var(--muted); margin: 0; }
+.toast { font-size: .85rem; color: var(--accent); min-height: 1.3em; }
+.err { color: var(--od); font-size: .85rem; margin: 0; }
+
+@media (max-width: 460px) {
+  .num button { width: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<section class="sheet home" id="home">
+  <header>
+    <h1>辦公型鏡片處方單</h1>
+    <p class="sub">請先選擇鏡片品牌</p>
+  </header>
+  <div class="brands">
+    <button type="button" class="brand" id="goZS"><b>ZS</b><span>蔡司</span></button>
+    <button type="button" class="brand" id="goHOYA"><b>HOYA</b><span>豪雅</span></button>
+  </div>
+  <p class="note" id="hoyaMsg" hidden>HOYA 的計算方式尚未設定，目前只能使用 ZS。</p>
+</section>
+
+<main class="sheet" id="zs" hidden>
+  <button type="button" class="back" id="back">← 選擇品牌</button>
+  <header>
+    <h1>辦公型鏡片處方單<span class="tag">ZS 蔡司</span></h1>
+    <p class="sub">選擇工作距離，填入左右眼 S 與雙眼共用的 Add。度數以 0.25D 為一級。</p>
+  </header>
+
+  <form id="rx" autocomplete="off" novalidate>
+    <div style="display:grid;gap:28px">
+      <fieldset>
+        <legend>工作距離<small>可視範圍最遠到</small></legend>
+        <div class="chips" role="radiogroup">
+          <label class="chip"><input type="radio" name="dist" id="d1" value="1" checked><span>1 米</span></label>
+          <label class="chip"><input type="radio" name="dist" id="d2" value="2"><span>2 米</span></label>
+          <label class="chip"><input type="radio" name="dist" id="d4" value="4"><span>4 米</span></label>
+          <label class="chip"><input type="radio" name="dist" id="dc" value="custom"><span>自選</span></label>
+        </div>
+        <div class="custom" id="customWrap" hidden>
+          <label for="customDist">自訂距離</label>
+          <div class="slider">
+            <input type="range" id="customDist" min="1" max="4" step="0.1" value="1.5" list="ticks">
+            <datalist id="ticks"><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option></datalist>
+            <div class="ticks"><span>1</span><span>2</span><span>3</span><span>4 米</span></div>
+          </div>
+          <output id="distVal" for="customDist">1.5 米</output>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>處方度數<small>近視為負，遠視為正</small></legend>
+        <div class="rx" id="grid">
+          <div class="eye od">右眼 S<small>OD · R</small></div>
+          <div class="srow"><div class="sign" data-for="rS" role="group" aria-label="右眼 S 正負"><button type="button" data-s="1">+</button><button type="button" data-s="-1">−</button></div><div class="num" data-f="rS"></div></div>
+
+          <div class="eye os">左眼 S<small>OS · L</small></div>
+          <div class="srow"><div class="sign" data-for="lS" role="group" aria-label="左眼 S 正負"><button type="button" data-s="1">+</button><button type="button" data-s="-1">−</button></div><div class="num" data-f="lS"></div></div>
+
+          <div class="eye">Add<small>雙眼共用</small></div>
+          <div class="num" data-f="A"></div>
+        </div>
+        <p class="err" id="err" hidden></p>
+        <div class="tools">
+          <button type="button" class="btn" id="copyR">左眼同右眼</button>
+          <button type="button" class="btn" id="clear">清除重填</button>
+        </div>
+      </fieldset>
+    </div>
+  </form>
+
+  <section class="calc" hidden>
+    <h2>十字靶位置</h2>
+    <p class="formula" id="formula"></p>
+    <p class="warn" id="warn" hidden></p>
+    <div class="res" id="res">
+      <div class="cell"><span class="eye od">右眼<small>R</small></span><b id="rOut">—</b><span class="raw" id="rRaw"></span></div>
+      <div class="cell"><span class="eye os">左眼<small>L</small></span><b id="lOut">—</b><span class="raw" id="lRaw"></span></div>
+    </div>
+    <p class="note">十字靶位置 = 原 S + 1/工作距離 + 0.20，大字為取最近 0.25D 的度數，下方小字為未取整的精準度數。Add 不變。</p>
+  </section>
+
+  <div hidden><section class="calc" id="topSec">
+    <h2>十字靶上 6mm</h2>
+    <p class="formula" id="formula2"></p>
+    <div class="res">
+      <div class="cell"><span class="eye od">右眼<small>R</small></span><b id="rTop">—</b><span class="raw" id="rTopRaw"></span></div>
+      <div class="cell"><span class="eye os">左眼<small>L</small></span><b id="lTop">—</b><span class="raw" id="lTopRaw"></span></div>
+    </div>
+    <p class="note">十字靶上 6mm = 原 S + 1/工作距離。</p>
+  </section></div>
+
+  <section class="summary" aria-live="polite">
+    <h2>處方摘要</h2>
+    <div class="sum" id="sumView"></div>
+    <pre id="out" hidden></pre>
+    <div class="tools">
+      <button type="button" class="btn primary" id="copy">複製處方</button>
+      <span class="toast" id="toast"></span>
+    </div>
+    <p class="note">開啟時已帶入範例數值，可直接修改。輸入會自動對齊到最近的 0.25D。</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  const FIELDS = {
+    rS: { label: 'S',   min: 0, max: 20, sample: 2.5, signed: true },
+    lS: { label: 'S',   min: 0, max: 20, sample: 2.25, signed: true },
+    A:  { label: 'Add', min: 0,   max: 3.5, sample: 1.5 },
+  };
+  const NAMES = { rS: '右眼 S', lS: '左眼 S', A: 'Add' };
+  const SIGN = { rS: -1, lS: -1 };
+  function setSign(id, s) {
+    SIGN[id] = s;
+    document.querySelectorAll(`.sign[data-for="${id}"] button`).forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.s) === s)));
+  }
+  document.querySelectorAll('.sign').forEach(g => {
+    const id = g.dataset.for;
+    g.querySelectorAll('button').forEach(b => b.onclick = () => { setSign(id, Number(b.dataset.s)); render(); });
+    setSign(id, SIGN[id]);
+  });
+  const sval = id => { const v = document.getElementById(id).value; return v === '' ? '' : SIGN[id] * parseFloat(v); };
+
+  document.querySelectorAll('.num[data-f]').forEach(box => {
+    const id = box.dataset.f, f = FIELDS[id];
+    box.innerHTML =
+      `<button type="button" tabindex="-1" aria-label="${NAMES[id]} 減 0.25">${f.signed ? '▾' : '−'}</button>` +
+      `<input type="number" id="${id}" step="0.25" min="${f.min}" max="${f.max}" inputmode="decimal" aria-label="${NAMES[id]}" value="${f.sample.toFixed(2)}">` +
+      `<button type="button" tabindex="-1" aria-label="${NAMES[id]} 加 0.25">${f.signed ? '▴' : '+'}</button>`;
+    const [minus, input, plus] = box.children;
+    minus.onclick = () => bump(input, -0.25);
+    plus.onclick = () => bump(input, 0.25);
+    input.addEventListener('change', () => { snap(input); render(); });
+    input.addEventListener('input', render);
+  });
+
+  const $ = id => document.getElementById(id);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  function snap(input) {
+    if (input.value === '') return;
+    const f = FIELDS[input.id];
+    let v = parseFloat(input.value);
+    if (isNaN(v)) { input.value = ''; return; }
+    if (f.signed && v < 0) { setSign(input.id, -1); v = -v; }
+    v = clamp(Math.round(v * 4) / 4, f.min, f.max);
+    input.value = v.toFixed(2);
+  }
+  function bump(input, d) {
+    const f = FIELDS[input.id];
+    const v = input.value === '' ? 0 : parseFloat(input.value) || 0;
+    input.value = clamp(Math.round((v + d) * 4) / 4, f.min, f.max).toFixed(2);
+    render();
+  }
+  function fmt(v, signed) {
+    if (v === '' || isNaN(v)) return '—';
+    const n = Number(v);
+    if (n === 0 && signed) return 'PL';
+    return (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFixed(2);
+  }
+  function distance() {
+    const sel = document.querySelector('input[name="dist"]:checked').value;
+    if (sel !== 'custom') return { text: sel + ' 米', ok: true, m: Number(sel) };
+    const v = parseFloat($('customDist').value);
+    return isNaN(v) || v <= 0 ? { text: '自選（未填）', ok: false } : { text: v + ' 米（自選）', ok: true, m: v };
+  }
+  function pad(s, n) { return s + ' '.repeat(Math.max(0, n - s.length)); }
+
+  function render() {
+    const errs = [];
+    Object.keys(FIELDS).forEach(id => {
+      const el = $(id), f = FIELDS[id], box = el.parentElement;
+      const v = parseFloat(el.value);
+      const bad = el.value !== '' && (isNaN(v) || v < f.min || v > f.max || Math.abs(v * 4 - Math.round(v * 4)) > 1e-6);
+      box.classList.toggle('invalid', bad);
+      if (bad) errs.push(`${NAMES[id]} 需介於 ${f.min} 到 ${f.max}，以 0.25 為一級`);
+    });
+    const e = $('err'); e.hidden = !errs.length; e.textContent = errs.join('；');
+
+    const d = distance();
+    $('customDist').parentElement.classList.toggle('invalid', !d.ok);
+    const add = d.ok ? 1 / d.m + 0.2 : NaN;
+    $('formula').textContent = d.ok
+      ? `+1/${d.m} + 0.20 = +${add.toFixed(2)}D`
+      : '請先填入自選距離';
+    const office = p => {
+      const s = sval(p + 'S');
+      if (s === '' || isNaN(s) || isNaN(add)) return null;
+      const raw = s + add;
+      return { raw, r: Math.round(raw * 4) / 4 };
+    };
+    const addV = parseFloat($('A').value);
+    const need = d.ok ? 1 / d.m + 0.75 : NaN;
+    const tooLow = !isNaN(addV) && !isNaN(need) && addV < need - 1e-9;
+    $('warn').hidden = !tooLow;
+    $('res').hidden = tooLow;
+    if (tooLow) $('warn').innerHTML = `ADD 不足<small>目前 Add +${addV.toFixed(2)}，此距離需至少 +${need.toFixed(2)}（1/${d.m} + 0.75）</small>`;
+    const o = tooLow ? { r: null, l: null } : { r: office('r'), l: office('l') };
+    const add2 = d.ok ? 1 / d.m : NaN;
+    $('topSec').hidden = tooLow;
+    $('formula2').textContent = d.ok ? `+1/${d.m} = +${add2.toFixed(2)}D` : '請先填入自選距離';
+    const top = p => {
+      const s = sval(p + 'S');
+      if (tooLow || s === '' || isNaN(s) || isNaN(add2)) return null;
+      const raw = s + add2;
+      return { raw, r: Math.round(raw * 4) / 4 };
+    };
+    const t6 = { r: top('r'), l: top('l') };
+    ['r', 'l'].forEach(p => {
+      $(p + 'Top').textContent = t6[p] ? fmt(t6[p].r, true) : '—';
+      $(p + 'TopRaw').textContent = t6[p] ? `精準度數 ${fmt(t6[p].raw.toFixed(2), true)}` : '';
+    });
+    ['r', 'l'].forEach(p => {
+      $(p + 'Out').textContent = o[p] ? fmt(o[p].r, true) : '—';
+      $(p + 'Raw').textContent = o[p] ? `精準度數 ${fmt(o[p].raw.toFixed(2), true)}` : '';
+    });
+    const row = (eye, p) => `${eye}  S ${fmt(sval(p + 'S'), true)}`;
+    const orow = (eye, p) => `${eye}  S ${o[p] ? fmt(o[p].r, true) : '—'}`;
+    const v = x => x ? fmt(x.r, true) : '—';
+    const orig = p => fmt(sval(p + 'S'), true);
+    const mainR = tooLow ? 'ADD 不足' : v(o.r), mainL = tooLow ? 'ADD 不足' : v(o.l);
+    const exact = x => x ? `<small>精準 ${fmt(x.raw.toFixed(2), true)}</small>` : '';
+    const cell = x => `<td class="v">${v(x)}${exact(x)}</td>`;
+    $('out').textContent =
+      `【ZS 辦公型鏡片】工作距離 ${d.text}｜原處方 S 右 ${orig('r')}／左 ${orig('l')}，Add ${fmt($('A').value, false)}\n\n`
+      + (tooLow ? `▶ 十字靶位置：ADD 不足（需至少 +${need.toFixed(2)}）\n`
+        : `▶ 十字靶位置\n   右眼 R：${mainR}\n   左眼 L：${mainL}\n`)
+      + `\n十字靶上 6mm　右 ${v(t6.r)}／左 ${v(t6.l)}`;
+    $('sumView').innerHTML =
+      `<div class="meta"><span>ZS 辦公型鏡片</span><span>工作距離 <b>${d.text}</b></span><span>原處方 S 右 <b>${orig('r')}</b>　左 <b>${orig('l')}</b>　Add <b>${fmt($('A').value, false)}</b></span></div>`
+      + `<table><thead><tr><th></th><th class="v">右眼 R</th><th class="v">左眼 L</th></tr></thead><tbody>`
+      + (tooLow ? `<tr class="main bad"><th>十字靶位置</th><td colspan="2">ADD 不足<small>目前 +${addV.toFixed(2)}，需至少 +${need.toFixed(2)}（1/${d.m} + 0.75）</small></td></tr>`
+        : `<tr class="main"><th>十字靶位置<small>S + 1/${d.ok ? d.m : '—'} + 0.20</small></th>${cell(o.r)}${cell(o.l)}</tr>`)
+      + `<tr class="sub"><th>十字靶上 6mm<small>S + 1/${d.ok ? d.m : '—'}</small></th>${cell(t6.r)}${cell(t6.l)}</tr>`
+      + `</tbody></table>`;
+  }
+
+  document.querySelectorAll('input[name="dist"]').forEach(r => r.addEventListener('change', () => {
+    $('customWrap').hidden = $('dc').checked === false;
+    if ($('dc').checked) $('customDist').focus();
+    render();
+  }));
+  $('customDist').addEventListener('input', () => { $('distVal').textContent = Number($('customDist').value).toFixed(1) + ' 米'; render(); });
+
+  $('copyR').onclick = () => { $('lS').value = $('rS').value; setSign('lS', SIGN.rS); render(); };
+  $('clear').onclick = () => { Object.keys(FIELDS).forEach(id => $(id).value = ''); $('customDist').value = '1.5'; $('distVal').textContent = '1.5 米'; $('d1').checked = true; $('customWrap').hidden = true; render(); };
+  $('rx').addEventListener('submit', ev => ev.preventDefault());
+
+  let t;
+  $('goZS').onclick = () => { $('home').hidden = true; $('zs').hidden = false; scrollTo(0, 0); };
+  $('goHOYA').onclick = () => { $('hoyaMsg').hidden = false; };
+  $('back').onclick = () => { $('zs').hidden = true; $('home').hidden = false; $('hoyaMsg').hidden = true; scrollTo(0, 0); };
+  $('copy').onclick = () => {
+    const text = $('out').textContent;
+    const done = msg => { $('toast').textContent = msg; clearTimeout(t); t = setTimeout(() => $('toast').textContent = '', 2400); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents($('sumView')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); done('已選取文字，請按 Ctrl+C 複製'); };
+    try { navigator.clipboard.writeText(text).then(() => done('已複製'), fallback); } catch (_) { fallback(); }
+  };
+
+  render();
+})();
+</script>
+
+</body></html>
