@@ -91,6 +91,8 @@ input[type="number"]:focus { outline: none; }
 .brand span { color: var(--muted); font-size: .9rem; }
 .brand.wide { padding: 20px 12px; }
 .home2 { margin-top: 20px !important; }
+.chips.corr { display: grid; gap: 4px; max-width: 420px; }
+.chips.corr .chip span { display: flex; justify-content: center; padding: 8px 0; font-size: .9rem; }
 #home { margin-top: 20px; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; background: var(--bg); border-radius: 10px; }
 .tab { font: inherit; font-weight: 700; font-size: .95rem; padding: 12px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; }
@@ -213,7 +215,7 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
       </fieldset>
 
       <fieldset>
-        <legend>參考值度數<small>近視為負，遠視為正</small></legend>
+        <legend>遠用度數<small>近視為負，遠視為正</small></legend>
         <div class="rx" id="grid">
           <div class="eye od">右眼 S<small>OD · R</small></div>
           <div class="srow"><div class="sign" data-for="rS" role="group" aria-label="右眼 S 正負"><button type="button" data-s="1">+</button><button type="button" data-s="-1">−</button></div><div class="num" data-f="rS"></div></div>
@@ -234,24 +236,24 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   </form>
 
   <section class="calc" hidden>
-    <h2>十字靶位置</h2>
+    <h2>眼位度數</h2>
     <p class="formula" id="formula"></p>
     <p class="warn" id="warn" hidden></p>
     <div class="res" id="res">
       <div class="cell"><span class="eye od">右眼<small>R</small></span><b id="rOut">—</b><span class="raw" id="rRaw"></span></div>
       <div class="cell"><span class="eye os">左眼<small>L</small></span><b id="lOut">—</b><span class="raw" id="lRaw"></span></div>
     </div>
-    <p class="note">十字靶位置 = 原 S + 1/工作距離 + 0.20，大字為取最近 0.25D 的度數，下方小字為未取整的精準度數。Add 不變。</p>
+    <p class="note">眼位度數 = 原 S + 1/工作距離 + 0.20，大字為取最近 0.25D 的度數，下方小字為未取整的精準度數。Add 不變。</p>
   </section>
 
   <div hidden><section class="calc" id="topSec">
-    <h2>十字靶上 6mm</h2>
+    <h2>上光度數</h2>
     <p class="formula" id="formula2"></p>
     <div class="res">
       <div class="cell"><span class="eye od">右眼<small>R</small></span><b id="rTop">—</b><span class="raw" id="rTopRaw"></span></div>
       <div class="cell"><span class="eye os">左眼<small>L</small></span><b id="lTop">—</b><span class="raw" id="lTopRaw"></span></div>
     </div>
-    <p class="note">十字靶上 6mm = 原 S + 1/工作距離。</p>
+    <p class="note">上光度數 = 原 S + 1/工作距離。</p>
   </section></div>
 
   <section class="summary" aria-live="polite">
@@ -263,6 +265,35 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
       <span class="toast" id="toast"></span>
     </div>
     <p class="note">開啟時已帶入範例數值，可直接修改。輸入會自動對齊到最近的 0.25D。</p>
+  </section>
+</main>
+
+<main class="sheet" id="hoya" hidden>
+  <button type="button" class="back" id="hBack">← 選擇品牌</button>
+  <header>
+    <h1>辦公型鏡片參考值<span class="tag">HOYA</span></h1>
+    <p class="sub">先選擇產品等級，再選工作距離。</p>
+  </header>
+  <fieldset>
+    <legend>產品等級</legend>
+    <div class="chips" id="hTier" role="radiogroup"></div>
+  </fieldset>
+  <fieldset id="hDistWrap">
+    <legend>工作距離</legend>
+    <div class="chips" id="hDist" role="radiogroup"></div>
+  </fieldset>
+  <fieldset id="hCorrWrap">
+    <legend>累進帶<small>mm</small></legend>
+    <div class="chips corr" id="hCorr" role="radiogroup"></div>
+  </fieldset>
+  <fieldset>
+    <legend id="hRxL">遠用度數</legend>
+    <div class="rx" id="hGrid"></div>
+  </fieldset>
+  <section class="summary" aria-live="polite">
+    <h2>目前選擇</h2>
+    <div class="sum" id="hSum"></div>
+    <p class="note" id="hNote"></p>
   </section>
 </main>
 
@@ -586,15 +617,16 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     const cell = x => `<td class="v">${v(x)}${exact(x)}</td>`;
     $('out').textContent =
       `【ZS 辦公型鏡片】工作距離 ${d.text}｜原參考值 S 右 ${orig('r')}／左 ${orig('l')}，Add ${fmt($('A').value, false)}\n\n`
-      + (tooLow ? `▶ 十字靶位置：ADD 不足（需至少 +${need.toFixed(2)}）\n`
-        : `▶ 十字靶位置\n   右眼 R：${mainR}\n   左眼 L：${mainL}\n`)
-      + `\n十字靶上 6mm　右 ${v(t6.r)}／左 ${v(t6.l)}`;
+      + (tooLow ? `▶ 眼位度數：ADD 不足（需至少 +${need.toFixed(2)}）\n`
+        : `▶ 眼位度數\n   右眼 R：${mainR}\n   左眼 L：${mainL}\n`)
+      + `\n上光度數　右 ${v(t6.r)}／左 ${v(t6.l)}`;
     $('sumView').innerHTML =
       `<div class="meta"><span>ZS 辦公型鏡片</span><span>工作距離 <b>${d.text}</b></span><span>原參考值 S 右 <b>${orig('r')}</b>　左 <b>${orig('l')}</b>　Add <b>${fmt($('A').value, false)}</b></span></div>`
       + `<table><thead><tr><th></th><th class="v">右眼 R</th><th class="v">左眼 L</th></tr></thead><tbody>`
-      + (tooLow ? `<tr class="main bad"><th>十字靶位置</th><td colspan="2">ADD 不足<small>目前 +${addV.toFixed(2)}，需至少 +${need.toFixed(2)}（1/${d.m} + 0.75）</small></td></tr>`
-        : `<tr class="main"><th>十字靶位置<small>S + 1/${d.ok ? d.m : '—'} + 0.20</small></th>${cell(o.r)}${cell(o.l)}</tr>`)
-      + `<tr class="sub"><th>十字靶上 6mm<small>S + 1/${d.ok ? d.m : '—'}</small></th>${cell(t6.r)}${cell(t6.l)}</tr>`
+      + `<tr class="sub"><th>上光度數</th><td class="v">${v(t6.r)}</td><td class="v">${v(t6.l)}</td></tr>`
+      + `<tr class="sub"><th>眼位上累進帶</th><td class="v">6mm</td><td class="v">6mm</td></tr>`
+      + (tooLow ? `<tr class="main bad"><th>眼位度數</th><td colspan="2">ADD 不足<small>目前 +${addV.toFixed(2)}，需至少 +${need.toFixed(2)}（1/${d.m} + 0.75）</small></td></tr>`
+        : `<tr class="main"><th>眼位度數</th>${cell(o.r)}${cell(o.l)}</tr>`)
       + `</tbody></table>`;
   }
 
@@ -611,13 +643,78 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 
   let t;
   $('goZS').onclick = () => { $('home').hidden = true; $('prismHome').hidden = true; $('clHome').hidden = true; $('zs').hidden = false; scrollTo(0, 0); };
-  $('goHOYA').onclick = () => { $('hoyaMsg').hidden = false; };
+
   const homes = ['clHome', 'home', 'prismHome'];
-  const showPage = id => { homes.concat(['zs', 'prism', 'cl']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
+  const showPage = id => { homes.concat(['zs', 'prism', 'cl', 'hoya']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
   $('goPrism').onclick = () => showPage('prism');
   $('pBack').onclick = () => showPage(null);
   $('goCL').onclick = () => showPage('cl');
   $('clBack').onclick = () => showPage(null);
+  $('goHOYA').onclick = () => showPage('hoya');
+  $('hBack').onclick = () => showPage(null);
+  const TIERS = [['頂級', [1, 2, 6], [18, 19, 20, 21, 22, 23, 24]], ['卓越', [2, 4], [20, 23]], ['智學', [2, 4], []], ['極致閱讀', [], []]];
+  let hT = 0, hD = 1, hC = 18;
+  // 眼位 = S + k × Add + c
+  const HF = { '頂級': { 1: [0.5, 0], 2: [0.4, 0], 6: [0.4, 0] }, '卓越': { 1: [0.5, 0], 2: [0.4, 0.3], 4: [0.4, 0] }, '智學': { 2: [0.37, 0.3], 4: [0.37, 0] }, '極致閱讀': {} };
+  const HS = { r: -1, l: -1 };
+  const hbox = (id, v, lo, hi) => `<div class="num"><button type="button" tabindex="-1" data-hs="-0.25" data-t="${id}" aria-label="減 0.25">${lo}</button><input type="number" id="${id}" min="0" max="20" step="0.25" inputmode="decimal" value="${v}"><button type="button" tabindex="-1" data-hs="0.25" data-t="${id}" aria-label="加 0.25">${hi}</button></div>`;
+  $('hGrid').innerHTML = [['r', '右眼 近視', 'od', 'OD · R'], ['l', '左眼 近視', 'os', 'OS · L']].map(([k, n, c, t]) =>
+    `<div class="eye ${c}">${n}<small>${t}</small></div><div class="srow"><div class="sign" data-hy="${k}" role="group"><button type="button" data-s="1" aria-pressed="false">+</button><button type="button" data-s="-1" aria-pressed="true">−</button></div>${hbox('hy' + k, '4.00', '▾', '▴')}</div>`).join('')
+    + `<div class="eye" id="hyAL">Add<small>雙眼共用</small></div>${hbox('hyA', '1.50', '−', '+')}`;
+  document.querySelectorAll('.sign[data-hy]').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => {
+    HS[g.dataset.hy] = Number(b.dataset.s); g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); hRender();
+  }));
+  document.querySelectorAll('[data-hs]').forEach(b => b.onclick = () => {
+    const i = $(b.dataset.t); i.value = Math.max(0, Math.min(20, Math.round(((parseFloat(i.value) || 0) + Number(b.dataset.hs)) * 4) / 4)).toFixed(2); hRender();
+  });
+  ['hyr', 'hyl', 'hyA'].forEach(id => { $(id).addEventListener('input', () => hRender()); $(id).addEventListener('change', () => {
+    const i = $(id); if (i.value === '') return; let v = parseFloat(i.value) || 0;
+    if (v < 0 && id !== 'hyA') { const k = id.slice(2); HS[k] = -1; document.querySelectorAll(`.sign[data-hy="${k}"] button`).forEach(x => x.setAttribute('aria-pressed', String(x.dataset.s === '-1'))); }
+    i.value = Math.min(20, Math.round(Math.abs(v) * 4) / 4).toFixed(2); hRender();
+  }); });
+  const hv = (id, s) => { const v = $(id).value; if (v === '') return '—'; const n = s * Math.abs(parseFloat(v)); return n === 0 ? 'PL' : (n > 0 ? '+' : '−') + Math.abs(n).toFixed(2); };
+  const chip = (name, i, on, label) => `<label class="chip"><input type="radio" name="${name}" value="${i}"${on ? ' checked' : ''}><span>${label}</span></label>`;
+  function hRender() {
+    $('hTier').innerHTML = TIERS.map((t, i) => chip('hTier', i, i === hT, t[0])).join('');
+    const ds = TIERS[hT][1]; if (!ds.includes(hD)) hD = ds.length ? ds[0] : null;
+    $('hDist').innerHTML = ds.map(d => chip('hDist', d, d === hD, d + ' 米')).join('');
+    const cs = TIERS[hT][2]; if (cs.length && !cs.includes(hC)) hC = cs[0];
+    const rd = TIERS[hT][0] === '極致閱讀';
+    $('hRxL').textContent = rd ? '近用度數' : '遠用度數';
+    $('hyAL').hidden = $('hyA').parentElement.hidden = rd;
+    $('hDistWrap').hidden = !ds.length;
+    $('hCorrWrap').hidden = !cs.length;
+    $('hCorr').innerHTML = cs.map(c => chip('hCorr', c, c === hC, String(c))).join('');
+    $('hCorr').style.gridTemplateColumns = `repeat(${Math.max(cs.length, 4)}, minmax(0, 1fr))`;
+    $('hSum').innerHTML = `<div class="meta"><span>HOYA 辦公型鏡片</span><span>等級 <b>${TIERS[hT][0]}</b></span>${hD ? `<span>工作距離 <b>${hD} 米</b></span>` : ''}${cs.length ? `<span>累進帶 <b>${hC} mm</b></span>` : ''}<span>右 <b>${hv('hyr', HS.r)}</b>　左 <b>${hv('hyl', HS.l)}</b>${rd ? '' : `　Add <b>${hv('hyA', 1)}</b>`}</span></div>`;
+    const fm = HF[TIERS[hT][0]][hD], A = parseFloat($('hyA').value);
+    const calc1 = k => { const v = $('hy' + k).value; if (!fm || v === '' || isNaN(A)) return null; const raw = HS[k] * Math.abs(parseFloat(v)) + fm[0] * Math.abs(A) + fm[1]; return { raw, r: Math.round(raw * 4) / 4 }; };
+    // 上光 = S + 1/距離；6 米直接用原 S
+    const up1 = k => { const v = $('hy' + k).value; if (v === '' || !hD) return null; return { raw: HS[k] * Math.abs(parseFloat(v)) + (hD === 6 ? 0 : 1 / hD) }; };
+    // 眼位上累進帶：18→7、19-20→8、21-22→9、23-24→10；下光 = 累進帶 − 上光
+    const upN = cs.length ? (hC <= 18 ? 7 : hC <= 20 ? 8 : hC <= 22 ? 9 : 10) : null;
+    const zx = TIERS[hT][0] === '智學';
+    const upC = upN ? upN + 'mm' : (zx ? '10mm' : '—'), dnC = upN ? (hC - upN) + 'mm' : (zx ? '13.5mm' : '—');
+    const fx = n => Math.abs(n) < 0.005 ? 'PL' : (n > 0 ? '+' : '−') + Math.abs(n).toFixed(2);
+    const cell = x => `<td class="v">${x ? fx(x.raw) : '—'}</td>`;
+    const ftxt = fm ? `S + ${Math.round(fm[0] * 100)}% Add${fm[1] ? ' + ' + fm[1].toFixed(2) : ''}` : '未設定';
+    $('hSum').innerHTML += `<table><thead><tr><th></th><th class="v">右眼 R</th><th class="v">左眼 L</th></tr></thead><tbody><tr class="sub"><th>上光度數</th>${cell(up1('r'))}${cell(up1('l'))}</tr><tr class="sub"><th>眼位上累進帶</th><td class="v">${upC}</td><td class="v">${upC}</td></tr><tr class="main"><th>眼位度數</th>${cell(calc1('r'))}${cell(calc1('l'))}</tr><tr class="sub"><th>眼位下方累進帶</th><td class="v">${dnC}</td><td class="v">${dnC}</td></tr></tbody></table>`;
+    // 極致閱讀：眼位上4mm = 原度 + 0.96、眼位度數 = 原度 + 0.69、累退值 8mm、下光度數 = 原度
+    if (rd) {
+      const nr = (k, a) => { const v = $('hy' + k).value; return v === '' ? null : { raw: HS[k] * Math.abs(parseFloat(v)) + a }; };
+      $('hSum').innerHTML = $('hSum').innerHTML.replace(/<table>[\s\S]*<\/table>/, '')
+        + `<table><thead><tr><th></th><th class="v">右眼 R</th><th class="v">左眼 L</th></tr></thead><tbody>`
+        + `<tr class="sub"><th>眼位上4mm</th>${cell(nr('r', 0.96))}${cell(nr('l', 0.96))}</tr>`
+        + `<tr class="main"><th>眼位度數</th>${cell(nr('r', 0.69))}${cell(nr('l', 0.69))}</tr>`
+        + `<tr class="sub"><th>累退值</th><td class="v">8mm</td><td class="v">8mm</td></tr>`
+        + `<tr class="sub"><th>下光度數</th>${cell(nr('r', 0))}${cell(nr('l', 0))}</tr></tbody></table>`;
+    }
+    $('hNote').textContent = rd ? '' : `眼位度數 = 原 S + Add 的 ${fm ? Math.round(fm[0] * 100) : '—'}%${fm && fm[1] ? ' + ' + fm[1].toFixed(2) : ''}，顯示精準度數。`;
+    document.querySelectorAll('input[name="hTier"]').forEach(r => r.onchange = () => { hT = Number(r.value); hRender(); });
+    document.querySelectorAll('input[name="hDist"]').forEach(r => r.onchange = () => { hD = Number(r.value); hRender(); });
+    document.querySelectorAll('input[name="hCorr"]').forEach(r => r.onchange = () => { hC = Number(r.value); hRender(); });
+  }
+  hRender();
   $('back').onclick = () => { $('zs').hidden = true; $('home').hidden = false; $('prismHome').hidden = false; $('clHome').hidden = false; $('prismMsg').hidden = true; $('hoyaMsg').hidden = true; scrollTo(0, 0); };
   $('copy').onclick = () => {
     const text = $('out').textContent;
