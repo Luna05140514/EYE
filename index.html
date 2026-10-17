@@ -118,6 +118,8 @@ input[type="number"]:focus { outline: none; }
 .brand.wide b { font-family: var(--font-body); font-size: 1.2rem; font-weight: 700; letter-spacing: .04em; }
 .brand:hover { border-color: var(--accent); background: var(--accent-soft); }
 .brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sheet.tap { cursor: pointer; }
+.sheet.tap:hover { border-color: var(--accent); }
 .back { justify-self: start; font: inherit; font-size: .88rem; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; }
 .back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tag { display: inline-block; vertical-align: middle; margin-left: 10px; font-size: .8rem; font-weight: 500; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
@@ -163,10 +165,18 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   <header>
     <h1>眼鏡／隱形眼鏡度數轉換</h1>
   </header>
-  <button type="button" class="brand wide" id="goCL"><b>進入</b></button>
+  <button type="button" class="brand wide" id="goCL" hidden><b>進入</b></button>
 </section>
 
 <section class="sheet home" id="home">
+  <header>
+    <h1>辦公型鏡片參考值</h1>
+  </header>
+  <button type="button" class="brand wide" id="goOffice" hidden><b>進入</b></button>
+</section>
+
+<main class="sheet" id="office" hidden>
+  <button type="button" class="back" id="oBack">← 回首頁</button>
   <header>
     <h1>辦公型鏡片參考值</h1>
     <p class="sub">請先選擇鏡片品牌</p>
@@ -176,14 +186,28 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     <button type="button" class="brand" id="goHOYA"><b>HOYA</b><span>豪雅</span></button>
   </div>
   <p class="note" id="hoyaMsg" hidden>HOYA 的計算方式尚未設定，目前只能使用 ZS。</p>
-</section>
+</main>
 
 <section class="sheet home2" id="prismHome">
   <header>
     <h1>組合稜鏡參考值</h1>
   </header>
-  <button type="button" class="brand wide" id="goPrism"><b>進入</b></button>
+  <button type="button" class="brand wide" id="goPrism" hidden><b>進入</b></button>
   <p class="note" id="prismMsg" hidden>組合稜鏡參考值的頁面尚未設定。</p>
+</section>
+
+<section class="sheet home2" id="bvHome">
+  <header>
+    <h1>雙眼視覺分析</h1>
+  </header>
+  <p class="note">尚未設定</p>
+</section>
+
+<section class="sheet home2" id="rgpHome">
+  <header>
+    <h1>RGP</h1>
+  </header>
+  <p class="note">尚未設定</p>
 </section>
 
 <main class="sheet" id="zs" hidden>
@@ -642,16 +666,20 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   $('rx').addEventListener('submit', ev => ev.preventDefault());
 
   let t;
-  $('goZS').onclick = () => { $('home').hidden = true; $('prismHome').hidden = true; $('clHome').hidden = true; $('zs').hidden = false; scrollTo(0, 0); };
+  $('goZS').onclick = () => showPage('zs');
 
-  const homes = ['clHome', 'home', 'prismHome'];
-  const showPage = id => { homes.concat(['zs', 'prism', 'cl', 'hoya']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
+  const homes = ['clHome', 'home', 'prismHome', 'bvHome', 'rgpHome'];
+  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
   $('goPrism').onclick = () => showPage('prism');
   $('pBack').onclick = () => showPage(null);
   $('goCL').onclick = () => showPage('cl');
   $('clBack').onclick = () => showPage(null);
   $('goHOYA').onclick = () => showPage('hoya');
-  $('hBack').onclick = () => showPage(null);
+  $('hBack').onclick = () => showPage('office');
+  $('goOffice').onclick = () => showPage('office');
+  $('oBack').onclick = () => showPage(null);
+  // 首頁：點整個標題區塊即進入
+  [['clHome', 'goCL'], ['home', 'goOffice'], ['prismHome', 'goPrism']].forEach(([sec, btn]) => { $(sec).classList.add('tap'); $(sec).onclick = () => $(btn).click(); });
   const TIERS = [['頂級', [1, 2, 6], [18, 19, 20, 21, 22, 23, 24]], ['卓越', [2, 4], [20, 23]], ['智學', [2, 4], []], ['極致閱讀', [], []]];
   let hT = 0, hD = 1, hC = 18;
   // 眼位 = S + k × Add + c
@@ -715,7 +743,7 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     document.querySelectorAll('input[name="hCorr"]').forEach(r => r.onchange = () => { hC = Number(r.value); hRender(); });
   }
   hRender();
-  $('back').onclick = () => { $('zs').hidden = true; $('home').hidden = false; $('prismHome').hidden = false; $('clHome').hidden = false; $('prismMsg').hidden = true; $('hoyaMsg').hidden = true; scrollTo(0, 0); };
+  $('back').onclick = () => { showPage('office'); $('prismMsg').hidden = true; $('hoyaMsg').hidden = true; };
   $('copy').onclick = () => {
     const text = $('out').textContent;
     const done = msg => { $('toast').textContent = msg; clearTimeout(t); t = setTimeout(() => $('toast').textContent = '', 2400); };
