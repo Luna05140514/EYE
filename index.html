@@ -152,9 +152,9 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 .sum tr.sub th, .sum tr.sub td { font-size: .88rem; color: var(--muted); }
 .sum tr.bad td { color: var(--od); font-weight: 700; text-align: right; font-size: 1.1rem; }
 .prow select { flex: 1; min-width: 0; min-height: 40px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font-family: var(--font-num); font-size: 1rem; }
-#bvY { flex: 3 1 0; min-width: 5em; } #bvM { flex: 2 1 0; min-width: 3em; } #bvGrid .plab { white-space: nowrap; } #bvGrid .num input { text-align: center; } #bvGrid .prow .sign button { min-width: 44px; padding: 0 6px; } #bvGrid .prow .sign { flex: none; } #bvGrid .prow { flex-wrap: nowrap; } #bvY ~ .plab { width: auto !important; min-width: 0; }
+#bvY { flex: 3 1 0; min-width: 5em; } #bvM { flex: 2 1 0; min-width: 3em; } #bvGrid .plab { white-space: nowrap; } #bvGrid .num input { text-align: center; } #wrGrid .prow { flex-wrap: nowrap; } #wrGrid .plab, #wrSum th, #wrSum td { white-space: nowrap; } #wrSum th, #wrSum td { padding-left: 8px; padding-right: 8px; } #wrGrid .prow .sign[data-wrn] { flex: 1; flex-wrap: wrap; } #wrGrid .prow .sign[data-wrn] button { min-width: 48px; padding: 0 6px; } #bvGrid .prow .sign button { min-width: 44px; padding: 0 6px; } #bvGrid .prow .sign { flex: none; } #bvGrid .prow { flex-wrap: nowrap; } #bvY ~ .plab { width: auto !important; min-width: 0; }
 #bvSum td.v, #bvSum tr.main th { white-space: nowrap; } #bvSum small, #bvSum tr.main td.v { white-space: normal; } #bvSum th, #bvSum td { padding-left: 10px; padding-right: 10px; }
-#bvSxH { font-size: 1.4rem; color: var(--od); } #bvSx { border: 2px solid var(--od); } .bvx { padding: 16px; display: grid; gap: 10px; background: color-mix(in srgb, var(--od) 6%, var(--paper)); } .bvx + .bvx { border-top: 2px solid var(--od); } .bvx b { color: var(--od); font-size: 1.4rem; } .bvx p { margin: 0; font-size: 1.1rem; line-height: 1.7; color: var(--ink); } .bvx p span { display: block; font-size: .95rem; font-weight: 700; color: var(--accent); }
+#bvLogic td, #bvLogic th { padding: 8px 10px; font-size: .88rem; line-height: 1.5; vertical-align: top; } #bvLogic td b { color: var(--od); } #bvSxH { font-size: 1.4rem; color: var(--od); } #bvSx { border: 2px solid var(--od); } .bvx { padding: 16px; display: grid; gap: 10px; background: color-mix(in srgb, var(--od) 6%, var(--paper)); } .bvx + .bvx { border-top: 2px solid var(--od); } .bvx b { color: var(--od); font-size: 1.4rem; } .bvx p { margin: 0; font-size: 1.1rem; line-height: 1.7; color: var(--ink); } .bvx p span { display: block; font-size: .95rem; font-weight: 700; color: var(--accent); }
 .sum td small, .sum th small { display: block; font-size: .72rem; font-weight: 400; color: var(--muted); font-family: var(--font-num); }
 .note { font-size: .82rem; color: var(--muted); margin: 0; }
 .toast { font-size: .85rem; color: var(--accent); min-height: 1.3em; }
@@ -216,6 +216,12 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 <section class="sheet home2" id="rgpHome">
   <header>
     <h1>RGP</h1>
+  </header>
+</section>
+
+<section class="sheet home2" id="wrHome">
+  <header>
+    <h1>鏡框彎度和傾斜角修正值</h1>
   </header>
 </section>
 
@@ -356,17 +362,46 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   <header>
     <h1>雙眼視覺分析</h1>
   </header>
-  <div class="tabs" role="tablist">
+  <div class="tabs" role="tablist" style="grid-template-columns:repeat(3,1fr)">
     <button type="button" role="tab" class="tab" id="bvTS" aria-selected="true">簡易版</button>
     <button type="button" role="tab" class="tab" id="bvTP" aria-selected="false">專業版</button>
+    <button type="button" role="tab" class="tab" id="bvTL" aria-selected="false">邏輯判斷</button>
   </div>
   <div class="prx" id="bvGrid"></div>
-  <section class="summary" aria-live="polite">
+  <section class="summary" id="bvRes" aria-live="polite">
     <h2>分析結果</h2>
     <div class="sum" id="bvSum"></div>
     <p class="note" id="bvNote"></p>
     <h2 id="bvSxH">總結</h2>
     <div class="sum" id="bvSx"></div>
+  </section>
+  <section class="summary" id="bvLogic" hidden>
+    <h2>常模與異常判斷</h2>
+    <div class="sum"><table><thead><tr><th>項目</th><th>常模</th><th>異常判斷</th></tr></thead><tbody><tr><td>遠方斜位</td><td>1Δ 外斜 ± 2</td><td>外斜 > 3Δ 偏外斜<br>內斜 > 1Δ 偏內斜</td></tr><tr><td>近方斜位</td><td>3Δ 外斜 ± 3</td><td>外斜 > 6Δ 偏外斜<br>有內斜即偏內斜</td></tr><tr><td>AC/A 計算法</td><td>4 : 1 ± 1</td><td>< 3 偏低，> 5 偏高</td></tr><tr><td>AC/A 梯度法</td><td>4 : 1 ± 2</td><td>< 2 偏低，> 6 偏高</td></tr><tr><td>調節幅度</td><td>15 − 0.25 × 年齡</td><td>低於此值偏低</td></tr><tr><td>FCC</td><td>+0.50 ± 0.25</td><td>< +0.25 偏低<br>負值為調節超前<br>> +0.75 為調節遲緩</td></tr><tr><td>NRA</td><td>+2.00 ± 0.50</td><td>< +1.50 偏低，> +2.50 偏高</td></tr><tr><td>PRA</td><td>−2.37 ± 1.00</td><td>不到 −1.37 偏低</td></tr><tr><td>遠方 BI 破裂</td><td>7Δ</td><td>< 4Δ 偏低</td></tr><tr><td>遠方 BO 破裂</td><td>19Δ</td><td>< 11Δ 偏低</td></tr><tr><td>近方 BI 破裂</td><td>21Δ</td><td>< 17Δ 偏低</td></tr><tr><td>近方 BO 破裂</td><td>21Δ</td><td>< 15Δ 偏低</td></tr><tr><td>NPC 破裂</td><td>5 cm</td><td>> 5 cm 偏遠</td></tr></tbody></table></div>
+    <h2>聚散系統型態</h2>
+    <div class="sum"><table><thead><tr><th>遠方斜位</th><th>近方斜位</th><th>AC/A</th><th>判斷</th></tr></thead><tbody><tr><td>正常</td><td>偏外斜</td><td>—</td><td><b>集合不足</b></td></tr><tr><td>正常</td><td>偏內斜</td><td>—</td><td><b>集合過度</b></td></tr><tr><td>偏外斜</td><td>正常</td><td>—</td><td><b>開散過度</b></td></tr><tr><td>偏內斜</td><td>正常</td><td>—</td><td><b>開散不足</b></td></tr><tr><td>偏外斜</td><td>偏外斜</td><td>> 5</td><td><b>開散過度</b></td></tr><tr><td>偏外斜</td><td>偏外斜</td><td>≤ 5</td><td><b>基本型外斜</b></td></tr><tr><td>偏內斜</td><td>偏內斜</td><td>< 3</td><td><b>開散不足</b></td></tr><tr><td>偏內斜</td><td>偏內斜</td><td>≥ 3</td><td><b>基本型內斜</b></td></tr><tr><td>偏外／內斜</td><td>方向相反</td><td>—</td><td><b>建議複查</b></td></tr><tr><td>正常</td><td>正常</td><td>—</td><td>聚散正常</td></tr></tbody></table></div>
+    <p class="note">斜位先依上表判斷正常或偏外／內斜，再對照遠近組合；遠近都異常時用計算法 AC/A 區分。</p>
+    <h2>調節系統型態</h2>
+    <div class="sum"><table><thead><tr><th>順序</th><th>條件</th><th>判斷</th></tr></thead><tbody><tr><td>1</td><td>FCC > +0.75 且 PRA 偏低<br>或 40 歲以上且 FCC > +0.75<br>或 未滿 40 歲且調節幅度偏低</td><td><b>調節不足</b></td></tr><tr><td>2</td><td>FCC < +0.25 且 NRA 偏低</td><td><b>調節過度</b></td></tr><tr><td>3</td><td>NRA 和 PRA 都偏低</td><td><b>調節靈活度不足</b></td></tr><tr><td>4</td><td>FCC 為負值</td><td><b>調節超前</b></td></tr><tr><td>5</td><td>FCC > +0.75 且未滿 40 歲</td><td><b>調節遲緩</b></td></tr><tr><td>—</td><td>40 歲以上且調節幅度偏低</td><td><b>老花</b>（列入總結）</td></tr><tr><td>—</td><td>以上都不符合</td><td>調節正常</td></tr></tbody></table></div>
+    <p class="note">由上往下判斷，符合第一個條件就停止。</p>
+    <h2>稜鏡法則（專業版）</h2>
+    <div class="sum"><table><thead><tr><th>斜位</th><th>法則</th><th>需達到</th><th>稜鏡量</th></tr></thead><tbody><tr><td>外斜（遠、近）</td><td>Sheard</td><td>BO 範圍 ≥ 2 × 斜位</td><td>(2 × 斜位 − BO) ÷ 3<br>基底朝內 BI</td></tr><tr><td>內斜（遠、近）</td><td>1:1</td><td>BI 恢復點 ≥ 斜位</td><td>(斜位 − BI 恢復) ÷ 2<br>基底朝外 BO</td></tr><tr><td>內外斜（近方）</td><td>Percival</td><td>較小側 ≥ 較大側 ÷ 2</td><td>(較大 − 2 × 較小) ÷ 3<br>基底朝較大側</td></tr><tr><td>正位</td><td>—</td><td>—</td><td>不需稜鏡</td></tr></tbody></table></div>
+    <p class="note">融像範圍有模糊點用模糊點，沒有用破裂點。稜鏡量進位到 0.5Δ，算出 0 以下顯示不需稜鏡。</p>
+  </section>
+</main>
+
+<main class="sheet" id="wr" hidden>
+  <button type="button" class="back" id="wBack">← 回首頁</button>
+  <header>
+    <h1>鏡框彎度和傾斜角修正值</h1>
+  </header>
+  <p class="warn">本工具僅供參考，實際訂片度數須由驗光人員評估，並以鏡片廠商的配戴位置補償計算為準。</p>
+  <div class="prx" id="wrGrid"></div>
+  <section class="summary" aria-live="polite">
+    <h2>修正後新度數</h2>
+    <div class="sum" id="wrSum"></div>
+    <p class="warn">以上為公式推算的參考值，實際效果會因鏡片設計、鏡眼距與配戴位置而不同，請以實際驗光與廠商計算為準。</p>
+    <p class="note">先把度數從驗光時的頂點距離 12mm 換算到實際配戴的頂點距離（兩條主子午線各自換算）。再依 Martin 公式計算傾斜影響：傾斜後球面 = 度數 × (1 + sin²θ ÷ 3n)，另產生散光 = 傾斜後球面 × tan²θ；傾斜角產生的散光軸在 180°，鏡框彎度的在 90°，n 以 1.60 估算（折射率對結果影響極小）。結果是反推出戴上後效果等於原度數的新度數，直接顯示精準度數，散光取負散光表示。</p>
   </section>
 </main>
 
@@ -743,8 +778,8 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   let t;
   $('goZS').onclick = () => showPage('zs');
 
-  const homes = ['clHome', 'home', 'prismHome', 'bvHome', 'rgpHome', 'thkHome'];
-  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya', 'rgp', 'thk', 'bv']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
+  const homes = ['clHome', 'home', 'prismHome', 'bvHome', 'rgpHome', 'thkHome', 'wrHome'];
+  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya', 'rgp', 'thk', 'bv', 'wr']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
   $('goPrism').onclick = () => showPage('prism');
   $('pBack').onclick = () => showPage(null);
   $('goCL').onclick = () => showPage('cl');
@@ -756,6 +791,8 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   $('rBack').onclick = () => showPage(null);
   $('tBack').onclick = () => showPage(null);
   $('bBack').onclick = () => showPage(null);
+  $('wBack').onclick = () => showPage(null);
+  $('wrHome').classList.add('tap'); $('wrHome').onclick = () => showPage('wr');
   $('bvHome').classList.add('tap'); $('bvHome').onclick = () => showPage('bv');
   $('thkHome').classList.add('tap'); $('thkHome').onclick = () => showPage('thk');
   $('rgpHome').classList.add('tap'); $('rgpHome').onclick = () => showPage('rgp');
@@ -1025,6 +1062,8 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     '遠近斜位方向不同': ['遠近斜位一內一外，症狀不一定。', '建議重新測量斜位，並配合融像範圍檢查再判斷。'],
     '調節不足': ['看近模糊、眼痠、頭痛，閱讀無法持久，容易疲倦。', '近用正度數（ADD）；調節訓練（翻轉拍、推近訓練）。'],
     '調節過度': ['遠近視力時好時壞，近距離工作後看遠模糊，眼痠頭痛。', '調節放鬆訓練；避免近視過矯；必要時以睫狀肌麻痺驗光確認度數。'],
+    '調節超前': ['看近時對焦過度，閱讀久了眼痠、頭痛，看遠會短暫模糊。', '先確認近視沒有過矯、遠視有足量矯正；近用正度數（ADD）減少調節，配合調節放鬆訓練。'],
+    '調節遲緩': ['看近模糊、閱讀費力，眼睛容易疲勞。', '先確認遠視有足量矯正；近用正度數（ADD），配合調節訓練（翻轉拍、推近訓練）。'],
     '調節靈活度不足': ['遠近切換時對焦慢、短暫模糊，閱讀久了疲勞。', '翻轉拍（±2.00D）訓練、遠近交替注視訓練。'],
     '老花': ['看近模糊，需要把東西拿遠才看得清楚，光線暗時更明顯。', '配近用或多焦點（漸進）鏡片。']
   };
@@ -1048,7 +1087,7 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     const amp = Math.max(0, 15 - 0.25 * age);
     const sD = st(D, -3, 1, '偏外斜', '偏內斜'), sN = st(N, -6, 0, '偏外斜', '偏內斜');
     const sA = aca === null ? '' : aca < 3 ? '偏低' : aca > 5 ? '偏高' : '正常';
-    const sF = F === null ? '' : F < 0.25 ? (F < 0 ? '調節超前' : '偏低') : F > 0.75 ? '調節遲滯偏高' : '正常';
+    const sF = F === null ? '' : F < 0.25 ? (F < 0 ? '調節超前' : '偏低') : F > 0.75 ? (age >= 40 ? '調節不足' : '調節遲緩') : '正常';
     const sNR = st(NRA, 1.5, 2.5, '偏低', '偏高'), sPR = PRA === null ? '' : -PRA < 1.37 ? '偏低' : '正常';
     // 聚散初步判讀
     let vg = '聚散在正常範圍';
@@ -1063,9 +1102,11 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     const ampV = pu ? 100 / pu - add : null, sAmp = ampV === null ? '' : ampV < amp ? '偏低' : '正常';
     let ac = '調節在正常範圍';
     const lowN = sNR === '偏低', lowP = sPR === '偏低';
-    if ((F !== null && F > 0.75 && lowP) || (sAmp === '偏低' && age < 40)) ac = '疑似調節不足';
+    if ((F !== null && F > 0.75 && (lowP || age >= 40)) || (sAmp === '偏低' && age < 40)) ac = '疑似調節不足';
     else if (F !== null && F < 0.25 && lowN) ac = '疑似調節過度';
     else if (lowN && lowP) ac = '疑似調節靈活度不足';
+    else if (F !== null && F < 0) ac = '疑似調節超前';
+    else if (F !== null && F > 0.75 && age < 40) ac = '疑似調節遲緩';
     if (age >= 40) ac += '（已屆老花年齡，調節數值會偏低）';
     const presby = age >= 40 && sAmp === '偏低';
     const tr = (k, v, n, s) => `<tr><th>${k}<small>常模 ${n}</small></th><td class="v">${v}</td><td class="v"${s && s !== '正常' ? ' style="color:var(--od);font-weight:700"' : ''}>${s || '—'}</td></tr>`;
@@ -1114,8 +1155,11 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
       + (PRO ? '梯度法 AC/A = 加 −1.00 後近方斜位 − 原近方斜位。融像範圍以破裂點判斷，模糊點空白視為 X。外斜用 Sheard，內斜用 1:1 法則，Percival 內外斜都算。Sheard：補償範圍需 ≥ 2 倍斜位，稜鏡 = (2 × 斜位 − 補償範圍) ÷ 3，補償範圍有模糊點用模糊點、沒有用破裂點。Percival：較小側需 ≥ 較大側的一半，稜鏡 = (較大側 − 2 × 較小側) ÷ 3。1:1 法則用於內斜：BI 恢復點需 ≥ 內斜量，稜鏡 = (內斜 − BI 恢復點) ÷ 2，基底朝外。'
         : '判讀僅依斜位、調節幅度、FCC、NRA、PRA 推估，確診需配合融像範圍、NPC 與調節靈活度等檢查，可用專業版。');
   }
-  const tab = p => { PRO = p; $('bvTS').setAttribute('aria-selected', String(!p)); $('bvTP').setAttribute('aria-selected', String(p)); document.querySelectorAll('#bvGrid .bvPro').forEach(x => x.hidden = !p); run(); };
-  $('bvTS').onclick = () => tab(false); $('bvTP').onclick = () => tab(true);
+  // 分頁：S 簡易版、P 專業版、L 邏輯判斷（只顯示判斷規則表）
+  const tab = m => { PRO = m === 'P'; [['bvTS', 'S'], ['bvTP', 'P'], ['bvTL', 'L']].forEach(([id, k]) => $(id).setAttribute('aria-selected', String(k === m)));
+    $('bvGrid').hidden = $('bvRes').hidden = m === 'L'; $('bvLogic').hidden = m !== 'L';
+    document.querySelectorAll('#bvGrid .bvPro').forEach(x => x.hidden = !PRO); run(); };
+  $('bvTS').onclick = () => tab('S'); $('bvTP').onclick = () => tab('P'); $('bvTL').onclick = () => tab('L');
   document.querySelectorAll('.sign[data-bv]').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => {
     SG[g.dataset.bv] = Number(b.dataset.s); g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); run();
   }));
@@ -1133,5 +1177,62 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   run();
 })();
 </script>
+
+<script>
+(() => {
+  // 鏡框彎度、前傾角與頂點距離修正：先換算頂點距離，再用 Martin 斜向公式反推補償度數
+  const $ = id => document.getElementById(id);
+  const N = 1.6, REF = 12;  // 折射率以 1.60 估算（影響極小）；驗光時頂點距離 12mm
+  const box = (id, v, st, mn, mx, dp) => `<div class="num"><button type="button" tabindex="-1" data-wk="-${st}" data-t="${id}" data-dp="${dp}" aria-label="減">▾</button><input type="number" id="${id}" min="${mn}" max="${mx}" step="${st}" inputmode="decimal" value="${v}"><button type="button" tabindex="-1" data-wk="${st}" data-t="${id}" data-dp="${dp}" aria-label="加">▴</button></div>`;
+  const row = (lab, inner) => `<div class="prow"><span class="plab" style="width:5em">${lab}</span>${inner}</div>`;
+  const eye = (k, S, C, A) => '<fieldset class="peye"><legend class="eye">度數</legend>'
+    + row('球面', box(`wr${k}S`, S, 0.25, -20, 20, 2) + '<span class="plab">D</span>')
+    + row('散光', box(`wr${k}C`, C, 0.25, -6, 0, 2) + '<span class="plab">D</span>')
+    + row('軸度', box(`wr${k}A`, A, 5, 1, 180, 0) + '<span class="plab">°</span>') + '</fieldset>';
+  $('wrGrid').innerHTML = eye('R', '-4.00', '-1.00', '180')
+    + '<fieldset class="peye"><legend class="eye">鏡框配戴</legend>'
+    + row('傾斜角', box('wrT', '10', 1, 0, 25, 0) + '<span class="plab">°</span>')
+    + row('鏡框彎度', box('wrW', '5', 1, 0, 30, 0) + '<span class="plab">°</span>')
+    + row('頂點距離', box('wrV', '12', 0.5, 5, 25, 1) + '<span class="plab">mm</span>') + '</fieldset>';
+  const num = id => { const v = $(id).value; return v === '' ? null : parseFloat(v); };
+  const rad = d => d * Math.PI / 180;
+  const toV = (S, C, A) => [S + C / 2, -C / 2 * Math.cos(2 * rad(A)), -C / 2 * Math.sin(2 * rad(A))];
+  const fromV = ([M, J0, J45]) => { const C = -2 * Math.hypot(J0, J45); let A = Math.round(0.5 * Math.atan2(J45, J0) * 180 / Math.PI); if (A <= 0) A += 180; return [M - C / 2, C, A]; };
+  // 頂點距離：兩條主子午線各自換算 F' = F ÷ (1 − x·F)，x = (12 − 配戴距離) ÷ 1000
+  const vx = (S, C, A, d) => { const x = (REF - d) / 1000, g = F => F / (1 - x * F), s1 = g(S), s2 = g(S + C); return [s1, s2 - s1, A]; };
+  // 傾斜：前傾繞水平軸（產生散光軸 180），彎度繞垂直軸（產生散光軸 90）
+  const tilt = (v, th, ax) => { const t = rad(th), M = v[0], Sn = M * (1 + Math.sin(t) ** 2 / (3 * N)), Ci = Sn * Math.tan(t) ** 2;
+    return [v[0] + (Sn - M) + Ci / 2, v[1] + (ax === 180 ? -Ci / 2 : Ci / 2), v[2]]; };
+  const eff = (v, T, W) => tilt(tilt(v, T, 180), W, 90);
+  const f = v => Math.abs(v) < 0.005 ? '0.00' : (v > 0 ? '+' : '−') + Math.abs(v).toFixed(2);
+  function calc(k, T, W, d) {
+    const S = num(`wr${k}S`); if (S === null) return null;
+    const C = -Math.abs(num(`wr${k}C`) || 0), A = num(`wr${k}A`) || 180;
+    const target = toV(...vx(S, C, A, d));
+    // 反推：找出戴上傾斜後剛好等於目標度數的訂片度數
+    let c = target.slice();
+    for (let i = 0; i < 30; i++) { const e = eff(c, T, W); c = c.map((x, j) => x + target[j] - e[j]); }
+    return fromV(c);
+  }
+  function run() {
+    const T = num('wrT') || 0, W = num('wrW') || 0, d = num('wrV') ?? REF;
+    const tr = (name, r) => r === null ? `<tr><th>${name}</th><td class="v" colspan="3">—</td></tr>`
+      : `<tr class="main"><th>${name}</th><td class="v">${f(r[0])}</td><td class="v">${f(r[1])}</td><td class="v">${Math.abs(r[1]) < 0.005 ? '—' : r[2]}</td></tr>`;
+    $('wrSum').innerHTML = `<div class="meta"><span>傾斜角 <b>${T}°</b></span><span>鏡框彎度 <b>${W}°</b></span><span>頂點距離 <b>${d} mm</b></span></div>`
+      + '<table><thead><tr><th></th><th class="v">球面</th><th class="v">散光</th><th class="v">軸度</th></tr></thead><tbody>'
+      + tr('新度數', calc('R', T, W, d)) + '</tbody></table>';
+  }
+  document.querySelectorAll('[data-wk]').forEach(b => b.onclick = () => {
+    const i = $(b.dataset.t), dp = Number(b.dataset.dp);
+    let v = Math.round(((parseFloat(i.value) || 0) + Number(b.dataset.wk)) * 100) / 100;
+    v = Math.min(Number(i.max), Math.max(Number(i.min), v));
+    i.value = v.toFixed(dp); run();
+  });
+  document.querySelectorAll('#wrGrid input').forEach(i => i.addEventListener('input', run));
+  ['wrRC'].forEach(id => $(id).addEventListener('change', () => { const i = $(id); if (i.value === '') return; i.value = (-Math.abs(parseFloat(i.value) || 0)).toFixed(2); run(); }));
+  run();
+})();
+</script>
+
 
 </body></html>
