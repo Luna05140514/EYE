@@ -152,9 +152,11 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 .sum tr.sub th, .sum tr.sub td { font-size: .88rem; color: var(--muted); }
 .sum tr.bad td { color: var(--od); font-weight: 700; text-align: right; font-size: 1.1rem; }
 .prow select { flex: 1; min-width: 0; min-height: 40px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font-family: var(--font-num); font-size: 1rem; }
+/* 鎖住點兩下放大 */
+*, *::before, *::after { touch-action: manipulation; }
 #bvY { flex: 3 1 0; min-width: 5em; } #bvM { flex: 2 1 0; min-width: 3em; } #bvGrid .plab { white-space: nowrap; } #bvGrid .num input { text-align: center; } #wrGrid .prow { flex-wrap: nowrap; } #wrGrid .plab, #wrSum th, #wrSum td { white-space: nowrap; } #wrSum th, #wrSum td { padding-left: 8px; padding-right: 8px; } #wrGrid .prow .sign[data-wrn] { flex: 1; flex-wrap: wrap; } #wrGrid .prow .sign[data-wrn] button { min-width: 48px; padding: 0 6px; } #bvGrid .prow .sign button { min-width: 44px; padding: 0 6px; } #bvGrid .prow .sign { flex: none; } #bvGrid .prow { flex-wrap: nowrap; } #bvY ~ .plab { width: auto !important; min-width: 0; }
 #bvSum td.v, #bvSum tr.main th { white-space: nowrap; } #bvSum small, #bvSum tr.main td.v { white-space: normal; } #bvSum th, #bvSum td { padding-left: 10px; padding-right: 10px; }
-#bvLogic td, #bvLogic th { padding: 8px 10px; font-size: .88rem; line-height: 1.5; vertical-align: top; } #bvLogic td b { color: var(--od); } #bvSxH { font-size: 1.4rem; color: var(--od); } #bvSx { border: 2px solid var(--od); } .bvx { padding: 16px; display: grid; gap: 10px; background: color-mix(in srgb, var(--od) 6%, var(--paper)); } .bvx + .bvx { border-top: 2px solid var(--od); } .bvx b { color: var(--od); font-size: 1.4rem; } .bvx p { margin: 0; font-size: 1.1rem; line-height: 1.7; color: var(--ink); } .bvx p span { display: block; font-size: .95rem; font-weight: 700; color: var(--accent); }
+#bvLogic td, #bvLogic th { padding: 8px 10px; font-size: .88rem; line-height: 1.5; vertical-align: top; } #bvLogic td b { color: var(--od); } #bvLogic .acp .hd td { font-size: .75rem; color: var(--muted); font-weight: 700; } #bvLogic .acp .pri td { background: color-mix(in srgb, var(--od) 8%, transparent); } #bvLogic .acp td.a { white-space: nowrap; } #bvLogic .acp td.k { font-weight: 700; color: var(--accent); border-right: 1px solid var(--line); } #bvSxH { font-size: 1.4rem; color: var(--od); } #bvSx { border: 2px solid var(--od); } .bvx { padding: 16px; display: grid; gap: 10px; background: color-mix(in srgb, var(--od) 6%, var(--paper)); } .bvx + .bvx { border-top: 2px solid var(--od); } .bvx b { color: var(--od); font-size: 1.4rem; } .bvx p { margin: 0; font-size: 1.1rem; line-height: 1.7; color: var(--ink); } .bvx p span { display: block; font-size: .95rem; font-weight: 700; color: var(--accent); }
 .sum td small, .sum th small { display: block; font-size: .72rem; font-weight: 400; color: var(--muted); font-family: var(--font-num); }
 .note { font-size: .82rem; color: var(--muted); margin: 0; }
 .toast { font-size: .85rem; color: var(--accent); min-height: 1.3em; }
@@ -377,13 +379,22 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   </section>
   <section class="summary" id="bvLogic" hidden>
     <h2>常模與異常判斷</h2>
-    <div class="sum"><table><thead><tr><th>項目</th><th>常模</th><th>異常判斷</th></tr></thead><tbody><tr><td>遠方斜位</td><td>1Δ 外斜 ± 2</td><td>外斜 > 3Δ 偏外斜<br>內斜 > 1Δ 偏內斜</td></tr><tr><td>近方斜位</td><td>3Δ 外斜 ± 3</td><td>外斜 > 6Δ 偏外斜<br>有內斜即偏內斜</td></tr><tr><td>AC/A 計算法</td><td>4 : 1 ± 1</td><td>< 3 偏低，> 5 偏高</td></tr><tr><td>AC/A 梯度法</td><td>4 : 1 ± 2</td><td>< 2 偏低，> 6 偏高</td></tr><tr><td>調節幅度</td><td>15 − 0.25 × 年齡</td><td>低於此值偏低</td></tr><tr><td>FCC</td><td>+0.50 ± 0.25</td><td>< +0.25 偏低<br>負值為調節超前<br>> +0.75 為調節遲緩</td></tr><tr><td>NRA</td><td>+2.00 ± 0.50</td><td>< +1.50 偏低，> +2.50 偏高</td></tr><tr><td>PRA</td><td>−2.37 ± 1.00</td><td>不到 −1.37 偏低</td></tr><tr><td>遠方 BI 破裂</td><td>7Δ</td><td>< 4Δ 偏低</td></tr><tr><td>遠方 BO 破裂</td><td>19Δ</td><td>< 11Δ 偏低</td></tr><tr><td>近方 BI 破裂</td><td>21Δ</td><td>< 17Δ 偏低</td></tr><tr><td>近方 BO 破裂</td><td>21Δ</td><td>< 15Δ 偏低</td></tr><tr><td>NPC 破裂</td><td>5 cm</td><td>> 5 cm 偏遠</td></tr></tbody></table></div>
+    <div class="sum"><table><thead><tr><th>項目</th><th>常模</th><th>異常判斷</th></tr></thead><tbody><tr><td>遠方斜位</td><td>1Δ 外斜 ± 2</td><td>外斜 > 3Δ 偏外斜<br>內斜 > 1Δ 偏內斜</td></tr><tr><td>近方斜位</td><td>3Δ 外斜 ± 3</td><td>外斜 > 6Δ 偏外斜<br>有內斜即偏內斜</td></tr><tr><td>AC/A 計算法</td><td>4 : 1 ± 1</td><td>< 3 偏低，> 5 偏高</td></tr><tr><td>AC/A 梯度法</td><td>4 : 1 ± 2</td><td>< 2 偏低，> 6 偏高</td></tr><tr><td>調節幅度</td><td>15 − 0.25 × 年齡</td><td>低於此值偏低</td></tr><tr><td>FCC</td><td>0.00 ~ +0.75</td><td>< 0.00 超前<br>> +0.75 偏高</td></tr><tr><td>NRA</td><td>+2.00 ± 0.50</td><td>< +1.50 偏低，> +2.50 偏高</td></tr><tr><td>PRA</td><td>−2.37 ± 1.00</td><td>> −1.25 偏低</td></tr><tr><td>遠方 BI 破裂</td><td>7Δ</td><td>< 4Δ 偏低</td></tr><tr><td>遠方 BO 破裂</td><td>19Δ</td><td>< 11Δ 偏低</td></tr><tr><td>近方 BI 破裂</td><td>21Δ</td><td>< 17Δ 偏低</td></tr><tr><td>近方 BO 破裂</td><td>21Δ</td><td>< 15Δ 偏低</td></tr><tr><td>NPC 破裂</td><td>5 cm</td><td>> 5 cm 偏遠</td></tr></tbody></table></div>
     <h2>聚散系統型態</h2>
-    <div class="sum"><table><thead><tr><th>遠方斜位</th><th>近方斜位</th><th>AC/A</th><th>判斷</th></tr></thead><tbody><tr><td>正常</td><td>偏外斜</td><td>—</td><td><b>集合不足</b></td></tr><tr><td>正常</td><td>偏內斜</td><td>—</td><td><b>集合過度</b></td></tr><tr><td>偏外斜</td><td>正常</td><td>—</td><td><b>開散過度</b></td></tr><tr><td>偏內斜</td><td>正常</td><td>—</td><td><b>開散不足</b></td></tr><tr><td>偏外斜</td><td>偏外斜</td><td>> 5</td><td><b>開散過度</b></td></tr><tr><td>偏外斜</td><td>偏外斜</td><td>≤ 5</td><td><b>基本型外斜</b></td></tr><tr><td>偏內斜</td><td>偏內斜</td><td>< 3</td><td><b>開散不足</b></td></tr><tr><td>偏內斜</td><td>偏內斜</td><td>≥ 3</td><td><b>基本型內斜</b></td></tr><tr><td>偏外／內斜</td><td>方向相反</td><td>—</td><td><b>建議複查</b></td></tr><tr><td>正常</td><td>正常</td><td>—</td><td>聚散正常</td></tr></tbody></table></div>
-    <p class="note">斜位先依上表判斷正常或偏外／內斜，再對照遠近組合；遠近都異常時用計算法 AC/A 區分。</p>
-    <h2>調節系統型態</h2>
-    <div class="sum"><table><thead><tr><th>順序</th><th>條件</th><th>判斷</th></tr></thead><tbody><tr><td>1</td><td>FCC > +0.75 且 PRA 偏低<br>或 40 歲以上且 FCC > +0.75<br>或 未滿 40 歲且調節幅度偏低</td><td><b>調節不足</b></td></tr><tr><td>2</td><td>FCC < +0.25 且 NRA 偏低</td><td><b>調節過度</b></td></tr><tr><td>3</td><td>NRA 和 PRA 都偏低</td><td><b>調節靈活度不足</b></td></tr><tr><td>4</td><td>FCC 為負值</td><td><b>調節超前</b></td></tr><tr><td>5</td><td>FCC > +0.75 且未滿 40 歲</td><td><b>調節遲緩</b></td></tr><tr><td>—</td><td>40 歲以上且調節幅度偏低</td><td><b>老花</b>（列入總結）</td></tr><tr><td>—</td><td>以上都不符合</td><td>調節正常</td></tr></tbody></table></div>
-    <p class="note">由上往下判斷，符合第一個條件就停止。</p>
+    <div class="sum"><table><thead><tr><th>遠方斜位</th><th>近方斜位</th><th>條件</th><th>判斷</th></tr></thead><tbody><tr><td>近方偏外斜</td><td>—</td><td>AC/A 正常且 AA 低</td><td><b>假性集合不足</b></td></tr><tr><td>任一偏外斜</td><td>—</td><td>AC/A 正常且遠近差 < 4Δ</td><td><b>單純型外斜</b></td></tr><tr><td>任一偏內斜</td><td>—</td><td>AC/A 正常且遠近差 < 4Δ</td><td><b>單純型內斜</b></td></tr><tr><td>正常</td><td>偏外斜</td><td>—</td><td><b>集合不足</b></td></tr><tr><td>正常</td><td>偏內斜</td><td>—</td><td><b>集合過度</b></td></tr><tr><td>偏外斜</td><td>正常</td><td>—</td><td><b>開散過度</b></td></tr><tr><td>偏內斜</td><td>正常</td><td>—</td><td><b>開散不足</b></td></tr><tr><td>偏外斜</td><td>偏外斜</td><td>> 5</td><td><b>開散過度</b></td></tr><tr><td>偏外斜</td><td>偏外斜</td><td>其他</td><td>近方較外斜 <b>集合不足</b><br>否則 <b>開散過度</b></td></tr><tr><td>偏內斜</td><td>偏內斜</td><td>< 3</td><td><b>開散不足</b></td></tr><tr><td>偏內斜</td><td>偏內斜</td><td>其他</td><td>近方較內斜 <b>集合過度</b><br>否則 <b>開散不足</b></td></tr><tr><td>偏外／內斜</td><td>方向相反</td><td>—</td><td><b>建議複查</b></td></tr><tr><td>正常</td><td>正常</td><td>—</td><td>聚散正常</td></tr></tbody></table></div>
+    <p class="note">由上往下判斷，前三列優先；斜位先依常模表判斷正常或偏外／內斜。AC/A 簡易版用計算法（3–5 正常），專業版用梯度法（2–6 正常）。</p>
+    <h2>調節系統判定路徑</h2>
+    <div class="sum"><table class="acp"><tbody>
+      <tr class="pri"><td colspan="4">★ 優先判定：不考慮 FCC 與 AA，只要 NRA < +1.50 且 PRA > −1.75 → <b>調節不靈敏（AF）</b></td></tr>
+      <tr class="hd"><td>1. FCC 結果</td><td>2. AA 狀態</td><td>3. 驗證指標</td><td>最終診斷</td></tr>
+      <tr><td rowspan="2" class="k">FCC > +0.75</td><td class="a">AA 低</td><td>調節幅度不足</td><td><b>調節不足（AI）</b></td></tr>
+      <tr><td class="a">AA 正常</td><td>PRA > −1.25<br>或 40 歲以上？</td><td>YES → <b>調節不足</b><br>NO → <b>調節遲緩</b></td></tr>
+      <tr><td rowspan="2" class="k">FCC < 0.00</td><td class="a">AA 低</td><td>AA 低且 FCC 超前</td><td><b>調節力不足且過度使用（痙攣）</b></td></tr>
+      <tr><td class="a">AA 正常</td><td>NRA < +1.50？</td><td>YES → <b>調節過度（AcE）</b><br>NO → <b>調節超前（短暫現象）</b></td></tr>
+      <tr><td rowspan="2" class="k">FCC 正常</td><td class="a">AA 正常</td><td>NRA、PRA 正常</td><td>調節系統正常</td></tr>
+      <tr><td class="a">AA 正常<br>或低</td><td>PRA 偏低（> −1.25）</td><td><b>潛在調節不足</b></td></tr>
+    </tbody></table></div>
+    <p class="note">AA 為調節幅度，低於 15 − 0.25 × 年齡即為 AA 低。40 歲以上且 AA 低時，總結另外列出老花。</p>
     <h2>稜鏡法則（專業版）</h2>
     <div class="sum"><table><thead><tr><th>斜位</th><th>法則</th><th>需達到</th><th>稜鏡量</th></tr></thead><tbody><tr><td>外斜（遠、近）</td><td>Sheard</td><td>BO 範圍 ≥ 2 × 斜位</td><td>(2 × 斜位 − BO) ÷ 3<br>基底朝內 BI</td></tr><tr><td>內斜（遠、近）</td><td>1:1</td><td>BI 恢復點 ≥ 斜位</td><td>(斜位 − BI 恢復) ÷ 2<br>基底朝外 BO</td></tr><tr><td>內外斜（近方）</td><td>Percival</td><td>較小側 ≥ 較大側 ÷ 2</td><td>(較大 − 2 × 較小) ÷ 3<br>基底朝較大側</td></tr><tr><td>正位</td><td>—</td><td>—</td><td>不需稜鏡</td></tr></tbody></table></div>
     <p class="note">融像範圍有模糊點用模糊點，沒有用破裂點。稜鏡量進位到 0.5Δ，算出 0 以下顯示不需稜鏡。</p>
@@ -1057,14 +1068,17 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     '集合過度': ['近距離工作眼痠、頭痛，看近模糊或重影，閱讀無法持久。', '近用正度數（ADD）或多焦點鏡片為主，可搭配 BI 融像訓練；必要時近用 BO 稜鏡。'],
     '開散過度': ['看遠時一眼偶爾外飄或重影，強光下常瞇一眼，看近反而較舒服。', 'BO 融像訓練；近視需足量矯正；必要時遠用 BI 稜鏡。'],
     '開散不足': ['看遠重影、頭痛，開車或看遠處招牌時特別不舒服。', '遠用 BO 稜鏡為主，可搭配 BI 融像訓練。'],
-    '基本型外斜': ['遠近都容易眼睛疲勞、重影，長時間用眼後不適。', 'BO 融像訓練為主；必要時遠近都加 BI 稜鏡。'],
-    '基本型內斜': ['遠近都容易眼睛疲勞、頭痛、重影。', 'BO 稜鏡為主，近用可加正度數，搭配 BI 融像訓練。'],
+    '假性集合不足': ['近距離閱讀容易疲勞、模糊，看久頭痛；主要是調節不足讓集合跟著不夠。', '先處理調節：近用正度數（ADD）或調節訓練，調節改善後集合通常跟著改善；不建議直接用 BI 稜鏡。'],
+    '單純型外斜': ['遠近都容易眼睛疲勞、重影，長時間用眼後不適。', 'BO 融像訓練為主；必要時遠近都加 BI 稜鏡。'],
+    '單純型內斜': ['遠近都容易眼睛疲勞、頭痛、重影。', 'BO 稜鏡為主，近用可加正度數，搭配 BI 融像訓練。'],
     '遠近斜位方向不同': ['遠近斜位一內一外，症狀不一定。', '建議重新測量斜位，並配合融像範圍檢查再判斷。'],
-    '調節不足': ['看近模糊、眼痠、頭痛，閱讀無法持久，容易疲倦。', '近用正度數（ADD）；調節訓練（翻轉拍、推近訓練）。'],
-    '調節過度': ['遠近視力時好時壞，近距離工作後看遠模糊，眼痠頭痛。', '調節放鬆訓練；避免近視過矯；必要時以睫狀肌麻痺驗光確認度數。'],
-    '調節超前': ['看近時對焦過度，閱讀久了眼痠、頭痛，看遠會短暫模糊。', '先確認近視沒有過矯、遠視有足量矯正；近用正度數（ADD）減少調節，配合調節放鬆訓練。'],
+    '調節不靈敏（AF）': ['遠近切換時對焦慢、短暫模糊，閱讀久了疲勞。', '翻轉拍（±2.00D）訓練、遠近交替注視訓練。'],
+    '調節不足（AI）': ['看近模糊、眼痠、頭痛，閱讀無法持久，容易疲倦。', '近用正度數（ADD）；調節訓練（翻轉拍、推近訓練）。'],
     '調節遲緩': ['看近模糊、閱讀費力，眼睛容易疲勞。', '先確認遠視有足量矯正；近用正度數（ADD），配合調節訓練（翻轉拍、推近訓練）。'],
-    '調節靈活度不足': ['遠近切換時對焦慢、短暫模糊，閱讀久了疲勞。', '翻轉拍（±2.00D）訓練、遠近交替注視訓練。'],
+    '調節力不足且過度使用（痙攣）': ['看近模糊又容易眼痠頭痛，視力時好時壞，近距離工作後看遠模糊。', '先以睫狀肌麻痺驗光排除假性近視；先做調節放鬆訓練，再做調節訓練；必要時近用正度數。'],
+    '調節過度（AcE）': ['遠近視力時好時壞，近距離工作後看遠模糊，眼痠頭痛。', '調節放鬆訓練；避免近視過矯；必要時以睫狀肌麻痺驗光確認度數。'],
+    '調節超前（短暫現象）': ['看近時對焦過度，閱讀久了眼痠，看遠會短暫模糊。', '多為短暫現象，建議複查；確認近視沒有過矯、遠視有足量矯正。'],
+    '潛在調節不足': ['目前可能沒有明顯症狀，長時間近距離用眼後容易疲勞、看近模糊。', '追蹤複查；近距離用眼注意休息，可做調節訓練。'],
     '老花': ['看近模糊，需要把東西拿遠才看得清楚，光線暗時更明顯。', '配近用或多焦點（漸進）鏡片。']
   };
   const SG = { D: -1, N: -1, G: -1 };
@@ -1087,26 +1101,34 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     const amp = Math.max(0, 15 - 0.25 * age);
     const sD = st(D, -3, 1, '偏外斜', '偏內斜'), sN = st(N, -6, 0, '偏外斜', '偏內斜');
     const sA = aca === null ? '' : aca < 3 ? '偏低' : aca > 5 ? '偏高' : '正常';
-    const sF = F === null ? '' : F < 0.25 ? (F < 0 ? '調節超前' : '偏低') : F > 0.75 ? (age >= 40 ? '調節不足' : '調節遲緩') : '正常';
-    const sNR = st(NRA, 1.5, 2.5, '偏低', '偏高'), sPR = PRA === null ? '' : -PRA < 1.37 ? '偏低' : '正常';
-    // 聚散初步判讀
-    let vg = '聚散在正常範圍';
-    const dOut = sD !== '正常' && sD !== '', nOut = sN !== '正常' && sN !== '';
-    if (dOut && nOut) vg = D < 0 && N < 0 ? (aca > 5 ? '疑似開散過度' : '疑似基本型外斜') : D > 0 && N > 0 ? (aca < 3 ? '疑似開散不足' : '疑似基本型內斜') : '遠近斜位方向不同，建議複查';
-    else if (nOut) vg = N < 0 ? '疑似集合不足' : '疑似集合過度';
-    else if (dOut) vg = D < 0 ? '疑似開散過度' : '疑似開散不足';
+    const sF = F === null ? '' : F < 0 ? '調節超前' : F > 0.75 ? '偏高' : '正常';
+    const sNR = st(NRA, 1.5, 2.5, '偏低', '偏高'), sPR = PRA === null ? '' : PRA > -1.25 ? '偏低' : '正常';
     // 調節初步判讀
     // 調節幅度 = 100 ÷ 近點距離(cm)，加 ADD 推進法再減 ADD
     $('bvAdd').closest('.prow').hidden = !WADD;
     const add = WADD ? num('bvAdd') || 0 : 0, pu = num('bvPu');
     const ampV = pu ? 100 / pu - add : null, sAmp = ampV === null ? '' : ampV < amp ? '偏低' : '正常';
-    let ac = '調節在正常範圍';
-    const lowN = sNR === '偏低', lowP = sPR === '偏低';
-    if ((F !== null && F > 0.75 && (lowP || age >= 40)) || (sAmp === '偏低' && age < 40)) ac = '疑似調節不足';
-    else if (F !== null && F < 0.25 && lowN) ac = '疑似調節過度';
-    else if (lowN && lowP) ac = '疑似調節靈活度不足';
-    else if (F !== null && F < 0) ac = '疑似調節超前';
-    else if (F !== null && F > 0.75 && age < 40) ac = '疑似調節遲緩';
+    // 聚散初步判讀：AC/A 正常且遠近斜位差 < 4Δ 為單純型；近方外斜 + AC/A 正常 + AA 低為假性集合不足
+    let vg = '聚散在正常範圍';
+    const dOut = sD !== '正常' && sD !== '', nOut = sN !== '正常' && sN !== '';
+    // 專業版用梯度法 AC/A（常模 4 ± 2），簡易版用計算法（常模 4 ± 1）
+    const gv0 = num('bvG'), gr0 = PRO && gv0 !== null && N !== null ? SG.G * Math.abs(gv0) - N : null;
+    const useG = gr0 !== null, av = useG ? gr0 : aca, aLo = useG ? 2 : 3, aHi = useG ? 6 : 5;
+    const aOK = av !== null && av >= aLo && av <= aHi;
+    const simple = aOK && Math.abs(N - D) < 4;
+    if (nOut && N < 0 && aOK && sAmp === '偏低') vg = '疑似假性集合不足';
+    else if (dOut && nOut) vg = D < 0 && N < 0 ? (simple ? '疑似單純型外斜' : av > aHi ? '疑似開散過度' : N < D ? '疑似集合不足' : '疑似開散過度')
+      : D > 0 && N > 0 ? (simple ? '疑似單純型內斜' : av < aLo ? '疑似開散不足' : N > D ? '疑似集合過度' : '疑似開散不足') : '遠近斜位方向不同，建議複查';
+    else if (nOut) vg = simple ? (N < 0 ? '疑似單純型外斜' : '疑似單純型內斜') : N < 0 ? '疑似集合不足' : '疑似集合過度';
+    else if (dOut) vg = simple ? (D < 0 ? '疑似單純型外斜' : '疑似單純型內斜') : D < 0 ? '疑似開散過度' : '疑似開散不足';
+    // 調節系統判定路徑（Luna 提供）：先看 AF，再依 FCC → AA → 驗證指標
+    const aaLow = sAmp === '偏低';
+    let ak = '';
+    if (NRA !== null && PRA !== null && NRA < 1.5 && PRA > -1.75) ak = '調節不靈敏（AF）';
+    else if (F !== null && F > 0.75) ak = aaLow || age >= 40 || (PRA !== null && PRA > -1.25) ? '調節不足（AI）' : '調節遲緩';
+    else if (F !== null && F < 0) ak = aaLow ? '調節力不足且過度使用（痙攣）' : NRA !== null && NRA < 1.5 ? '調節過度（AcE）' : '調節超前（短暫現象）';
+    else if (PRA !== null && PRA > -1.25) ak = '潛在調節不足';
+    let ac = ak ? '疑似' + ak : aaLow ? '調節幅度偏低，建議複查' : '調節系統正常';
     if (age >= 40) ac += '（已屆老花年齡，調節數值會偏低）';
     const presby = age >= 40 && sAmp === '偏低';
     const tr = (k, v, n, s) => `<tr><th>${k}<small>常模 ${n}</small></th><td class="v">${v}</td><td class="v"${s && s !== '正常' ? ' style="color:var(--od);font-weight:700"' : ''}>${s || '—'}</td></tr>`;
@@ -1141,13 +1163,13 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     }
     h += big('調節系統', ac);
     h += tr('調節幅度', ampV === null ? '—' : ampV.toFixed(2) + ' D' + `<small>${WADD ? '加 ADD 推進法' : '推進法'}</small>`, `最低 ${amp.toFixed(2)} D`, sAmp);
-    h += tr('FCC', F === null ? '—' : sd(F), '+0.50 ± 0.25', sF) + tr('NRA', NRA === null ? '—' : sd(NRA), '+2.00 ± 0.50', sNR) + tr('PRA', PRA === null ? '—' : sd(PRA), '−2.37 ± 1.00', sPR)
+    h += tr('FCC', F === null ? '—' : sd(F), '0.00 ~ +0.75', sF) + tr('NRA', NRA === null ? '—' : sd(NRA), '+2.00 ± 0.50', sNR) + tr('PRA', PRA === null ? '—' : sd(PRA), '−2.37 ± 1.00', sPR)
       + '</tbody></table>';
     $('bvSum').innerHTML = h;
     // 總結：只列異常型態
     const ks = [];
     if (vg.startsWith('疑似')) ks.push(vg.slice(2)); else if (vg.startsWith('遠近')) ks.push('遠近斜位方向不同');
-    if (ac.startsWith('疑似')) ks.push(ac.slice(2).replace(/（.*$/, ''));
+    if (ak) ks.push(ak);
     if (presby) ks.push('老花');
     $('bvSx').innerHTML = ks.length ? ks.map(k => `<div class="bvx"><b>${k}</b><p><span>可能症狀</span>${TYPES[k][0]}</p><p><span>改善方法</span>${TYPES[k][1]}</p></div>`).join('')
       : '<div class="bvx"><p>未發現異常型態。</p></div>';
