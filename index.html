@@ -169,6 +169,12 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   <button type="button" class="brand wide" id="goCL" hidden><b>進入</b></button>
 </section>
 
+<section class="sheet home2" id="thkHome">
+  <header>
+    <h1>鏡片厚度試算</h1>
+  </header>
+</section>
+
 <section class="sheet home" id="home">
   <header>
     <h1>辦公型鏡片參考值</h1>
@@ -339,6 +345,21 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     <div class="sum" id="clSum"></div>
     <p class="warn">以上數值為依鏡眼距換算的參考值，實際配戴度數須經戴片追加驗光確認，並由驗光人員判斷調整。</p>
     <p class="note" id="clNote"></p>
+  </section>
+</main>
+
+<main class="sheet" id="thk" hidden>
+  <button type="button" class="back" id="tBack">← 回首頁</button>
+  <header>
+    <h1>鏡片厚度試算</h1>
+  </header>
+  <p class="warn">本工具僅供參考，實際鏡片厚度依鏡片廠商、基弧與鏡框而定，請由驗光人員評估後決定。</p>
+  <div class="prx" id="tkGrid"></div>
+  <section class="summary" aria-live="polite">
+    <h2>裁型後各折射率厚度</h2>
+    <div class="sum" id="tkSum"></div>
+    <p class="warn">以上厚度為公式推算的參考值，實際裁型後厚度可能因鏡片設計、瞳距偏移與加工方式而不同，請以實際加工結果為準。</p>
+    <p class="note" id="tkNote"></p>
   </section>
 </main>
 
@@ -700,8 +721,8 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   let t;
   $('goZS').onclick = () => showPage('zs');
 
-  const homes = ['clHome', 'home', 'prismHome', 'bvHome', 'rgpHome'];
-  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya', 'rgp']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
+  const homes = ['clHome', 'home', 'prismHome', 'bvHome', 'rgpHome', 'thkHome'];
+  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya', 'rgp', 'thk']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
   $('goPrism').onclick = () => showPage('prism');
   $('pBack').onclick = () => showPage(null);
   $('goCL').onclick = () => showPage('cl');
@@ -711,6 +732,8 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   $('goOffice').onclick = () => showPage('office');
   $('oBack').onclick = () => showPage(null);
   $('rBack').onclick = () => showPage(null);
+  $('tBack').onclick = () => showPage(null);
+  $('thkHome').classList.add('tap'); $('thkHome').onclick = () => showPage('thk');
   $('rgpHome').classList.add('tap'); $('rgpHome').onclick = () => showPage('rgp');
   // 首頁：點整個標題區塊即進入
   [['clHome', 'goCL'], ['home', 'goOffice'], ['prismHome', 'goPrism']].forEach(([sec, btn]) => { $(sec).classList.add('tap'); $(sec).onclick = () => $(btn).click(); });
@@ -872,6 +895,63 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   $('rgTCalc').onclick = () => rgTab(true); $('rgTTrial').onclick = () => rgTab(false);
   // 近視固定負值
   $('rgS').addEventListener('change', () => { const i = $('rgS'); if (i.value === '') return; i.value = (-Math.abs(parseFloat(i.value) || 0)).toFixed(2); run(); });
+  run();
+})();
+</script>
+
+<script>
+(() => {
+  // 鏡片厚度試算：負片算邊緣最厚，正片算中心厚
+  const $ = id => document.getElementById(id);
+  const IDX = [[1.50, 2.0], [1.56, 1.5], [1.60, 1.3], [1.67, 1.2], [1.74, 1.1]];
+  // 阿貝數、拉力 (kgf)、耐熱度：Luna 提供的 HOYA 官網資料
+  const ABBE = { 1.5: 58, 1.56: 36, 1.6: 42, 1.67: 32, 1.74: 33 };
+  const PULL = { 1.5: '10–20kg', 1.56: '極低', 1.6: '60–80kg', 1.67: '70–80kg', 1.74: '50–60kg' };
+  const HEAT = { 1.5: 70, 1.56: 70, 1.6: 110, 1.67: 95, 1.74: 80 };
+  const EDGE = 2.0;  // 正片最薄邊緣
+  let SG = -1;
+  const box = (id, v, st, mn, mx, dp) => `<div class="num"><button type="button" tabindex="-1" data-tk="-${st}" data-t="${id}" data-dp="${dp}" aria-label="減">▾</button><input type="number" id="${id}" min="${mn}" max="${mx}" step="${st}" inputmode="decimal" value="${v}"><button type="button" tabindex="-1" data-tk="${st}" data-t="${id}" data-dp="${dp}" aria-label="加">▴</button></div>`;
+  const row = (lab, inner) => `<div class="prow"><span class="plab" style="width:6.5em">${lab}</span>${inner}</div>`;
+  $('tkGrid').innerHTML = '<fieldset class="peye"><legend class="eye">客人度數與鏡框</legend>'
+    + row('球面正負', '<div class="sign" data-tks role="group"><button type="button" data-s="1" aria-pressed="false">+</button><button type="button" data-s="-1" aria-pressed="true">−</button></div>')
+    + row('球面', box('tkS', '4.00', 0.25, 0, 25, 2) + '<span class="plab">D</span>')
+    + row('散光', box('tkC', '-1.00', 0.25, -10, 0, 2) + '<span class="plab">D</span>')
+    + row('最大斜角半徑', box('tkR', '30.0', 0.5, 10, 45, 1) + '<span class="plab">mm</span>') + '</fieldset>';
+  const num = id => { const v = $(id).value; return v === '' ? null : parseFloat(v); };
+  const f = v => Math.abs(v) < 0.005 ? 'PL' : (v > 0 ? '+' : '−') + Math.abs(v).toFixed(2);
+  function run() {
+    const Sv = num('tkS'), C = -Math.abs(num('tkC') || 0), y = num('tkR');
+    const S = Sv === null ? null : SG * Math.abs(Sv);
+    // 正片：最正子午線（球面）決定中心厚；負片：最負子午線（球面＋散光）決定邊緣厚
+    const plus = S !== null && S > 0;
+    // 遠視（正球面）不顯示散光
+    $('tkC').closest('.prow').hidden = SG > 0;
+    const F = S === null ? null : plus ? S : S + C;
+    const sag = n => { if (F === null || y === null) return null; if (Math.abs(F) < 0.005) return 0; const R = 1000 * (n - 1) / Math.abs(F); return y >= R ? null : R - Math.sqrt(R * R - y * y); };
+    const head = plus ? '<th class="v">邊緣厚 mm</th><th class="v">裁型後中心厚 mm</th>' : '<th class="v">中心厚 mm</th><th class="v">裁型後邊緣最厚 mm</th>';
+    $('tkSum').innerHTML = `<div class="meta"><span>度數 <b>${S === null ? '—' : f(S)}${C && !plus ? ' ' + f(C) : ''}</b></span><span>${plus ? '最正' : '最深'}子午線 <b>${F === null ? '—' : f(F)}</b></span><span>半徑 <b>${y === null ? '—' : y.toFixed(1)} mm</b></span></div>`
+      + `<table><thead><tr><th>折射率</th>${head}</tr></thead><tbody>`
+      + IDX.map(([n, ct]) => { const s = sag(n); const thin = plus ? EDGE : ct, thick = s === null ? '—' : (thin + s).toFixed(1);
+          return `<tr class="main"><th style="white-space:nowrap">${n.toFixed(2)}<small>阿貝值 ${ABBE[n]}</small><small>抗拉力 ${PULL[n]}</small><small>耐熱度 ${HEAT[n]}℃</small></th><td class="v"><small>${thin.toFixed(1)}</small></td><td class="v">${thick}</td></tr>`; }).join('')
+      + `</tbody></table>`;
+    $('tkNote').textContent = plus
+      ? `正度數以最大斜角半徑處、度數最正的子午線計算：中心厚 = 邊緣厚 ${EDGE.toFixed(1)}mm + R − √(R² − 半徑²)，R = 1000 × (折射率 − 1) ÷ 度數。實際依鏡片廠商、基弧與框型而不同。`
+      : '負度數以最大斜角半徑處、度數最深的子午線（球面＋散光）計算：邊緣厚 = 中心厚 + R − √(R² − 半徑²)，R = 1000 × (折射率 − 1) ÷ 度數。中心厚度依一般值估算，實際依鏡片廠商、基弧與框型而不同。';
+  }
+  document.querySelectorAll('.sign[data-tks] button').forEach(b => b.onclick = () => {
+    SG = Number(b.dataset.s); document.querySelectorAll('.sign[data-tks] button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); run();
+  });
+  document.querySelectorAll('[data-tk]').forEach(b => b.onclick = () => {
+    const i = $(b.dataset.t), dp = Number(b.dataset.dp);
+    let v = Math.round(((parseFloat(i.value) || 0) + Number(b.dataset.tk)) * 100) / 100;
+    v = Math.min(Number(i.max), Math.max(Number(i.min), v));
+    i.value = v.toFixed(dp); run();
+  });
+  document.querySelectorAll('#tkGrid input').forEach(i => i.addEventListener('input', run));
+  $('tkC').addEventListener('change', () => { const i = $('tkC'); if (i.value === '') return; i.value = (-Math.abs(parseFloat(i.value) || 0)).toFixed(2); run(); });
+  $('tkS').addEventListener('change', () => { const i = $('tkS'); if (i.value === '') return; const v = parseFloat(i.value) || 0;
+    if (v < 0) { SG = -1; document.querySelectorAll('.sign[data-tks] button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.s === '-1'))); }
+    i.value = Math.abs(v).toFixed(2); run(); });
   run();
 })();
 </script>
