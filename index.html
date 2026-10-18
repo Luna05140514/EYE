@@ -153,6 +153,7 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 .sum tr.bad td { color: var(--od); font-weight: 700; text-align: right; font-size: 1.1rem; }
 .prow select { flex: 1; min-width: 0; min-height: 40px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font-family: var(--font-num); font-size: 1rem; }
 .credit { text-align: center; color: var(--muted); font-size: .85rem; letter-spacing: .08em; padding: 8px 0 24px; }
+#clSum th, #clSum td.v { white-space: nowrap; } #clSum td.adv { font-size: .85rem; }
 /* 鎖住點兩下放大 */
 *, *::before, *::after { touch-action: manipulation; }
 #bvY { flex: 3 1 0; min-width: 5em; } #bvM { flex: 2 1 0; min-width: 3em; } #bvGrid .plab { white-space: nowrap; } #bvGrid .num input { text-align: center; } #wrGrid .prow { flex-wrap: nowrap; } #wrGrid .plab, #wrSum th, #wrSum td { white-space: nowrap; } #wrSum th, #wrSum td { padding-left: 8px; padding-right: 8px; } #wrGrid .prow .sign[data-wrn] { flex: 1; flex-wrap: wrap; } #wrGrid .prow .sign[data-wrn] button { min-width: 48px; padding: 0 6px; } #bvGrid .prow .sign button { min-width: 44px; padding: 0 6px; } #bvGrid .prow .sign { flex: none; } #bvGrid .prow { flex-wrap: nowrap; } #bvY ~ .plab { width: auto !important; min-width: 0; }
@@ -497,9 +498,10 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   let toCL = true;
   const SG = { r: -1, l: -1 };
   const E = [{ k: 'r', name: '右眼', tag: 'OD · R', cls: 'od', v: 10 }, { k: 'l', name: '左眼', tag: 'OS · L', cls: 'os', v: 10 }];
-  $('clgrid').innerHTML = E.map(e => `<fieldset class="peye"><legend class="eye ${e.cls}">${e.name} S<small>${e.tag}</small></legend>
-    <div class="prow"><div class="sign" data-cl="${e.k}" role="group"><button type="button" data-s="1" aria-pressed="false">+</button><button type="button" data-s="-1" aria-pressed="true">−</button></div>
-    <div class="num"><button type="button" tabindex="-1" data-cs="-0.25" data-t="cl${e.k}" aria-label="減 0.25">▾</button><input type="number" id="cl${e.k}" min="0" max="25" step="0.25" inputmode="decimal" value="${e.v.toFixed(2)}"><button type="button" tabindex="-1" data-cs="0.25" data-t="cl${e.k}" aria-label="加 0.25">▴</button></div></div></fieldset>`).join('');
+  $('clgrid').innerHTML = E.map(e => `<fieldset class="peye"><legend class="eye ${e.cls}">${e.name}<small>${e.tag}</small></legend>
+    <div class="prow"><span class="plab" style="width:3em">球面</span><div class="sign" data-cl="${e.k}" role="group"><button type="button" data-s="1" aria-pressed="false">+</button><button type="button" data-s="-1" aria-pressed="true">−</button></div></div>
+    <div class="prow"><span class="plab" style="width:3em"></span><div class="num"><button type="button" tabindex="-1" data-cs="-0.25" data-t="cl${e.k}" aria-label="減 0.25">▾</button><input type="number" id="cl${e.k}" min="0" max="25" step="0.25" inputmode="decimal" value="${e.v.toFixed(2)}"><button type="button" tabindex="-1" data-cs="0.25" data-t="cl${e.k}" aria-label="加 0.25">▴</button></div></div>
+    <div class="prow"><span class="plab" style="width:3em">散光</span><div class="num"><button type="button" tabindex="-1" data-cc="-0.25" data-t="cl${e.k}C" aria-label="減 0.25">▾</button><input type="number" id="cl${e.k}C" min="-10" max="0" step="0.25" inputmode="decimal" value="-1.00"><button type="button" tabindex="-1" data-cc="0.25" data-t="cl${e.k}C" aria-label="加 0.25">▴</button></div></div></fieldset>`).join('');
   document.querySelectorAll('.sign[data-cl]').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => {
     SG[g.dataset.cl] = Number(b.dataset.s);
     g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); run();
@@ -507,6 +509,13 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   document.querySelectorAll('[data-cs]').forEach(b => b.onclick = () => {
     const i = $(b.dataset.t); i.value = Math.max(0, Math.min(25, Math.round(((parseFloat(i.value) || 0) + Number(b.dataset.cs)) * 4) / 4)).toFixed(2); run();
   });
+  // 散光一律以負散光輸入
+  document.querySelectorAll('[data-cc]').forEach(b => b.onclick = () => {
+    const i = $(b.dataset.t); i.value = Math.max(-10, Math.min(0, Math.round((-Math.abs(parseFloat(i.value) || 0) + Number(b.dataset.cc)) * 4) / 4)).toFixed(2); run();
+  });
+  ['clrC', 'cllC'].forEach(id => { $(id).addEventListener('input', run); $(id).addEventListener('change', () => {
+    const i = $(id); if (i.value === '') return; i.value = (-Math.min(10, Math.round(Math.abs(parseFloat(i.value) || 0) * 4) / 4)).toFixed(2); run();
+  }); });
   ['clr', 'cll'].forEach(id => { $(id).addEventListener('input', run); $(id).addEventListener('change', () => {
     const i = $(id); if (i.value === '') return; let v = parseFloat(i.value) || 0;
     if (v < 0) { const k = id.slice(2); SG[k] = -1; document.querySelectorAll(`.sign[data-cl="${k}"] button`).forEach(x => x.setAttribute('aria-pressed', String(x.dataset.s === '-1'))); v = -v; }
@@ -516,21 +525,32 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   const tab = c => { toCL = c; $('clToCL').setAttribute('aria-selected', String(c)); $('clToSp').setAttribute('aria-selected', String(!c)); run(); };
   $('clToCL').onclick = () => tab(true); $('clToSp').onclick = () => tab(false);
   const f = v => isNaN(v) ? '—' : (Math.abs(v) < 0.005 ? 'PL' : (v > 0 ? '+' : '−') + Math.abs(v).toFixed(2));
+  const fc = v => Math.abs(v) < 0.005 ? '0.00' : '−' + Math.abs(v).toFixed(2);
+  const q = v => Math.round(v * 4) / 4;
+  // 兩條主子午線各自換算：球面 = 換算(S)，散光 = 換算(S + C) − 換算(S)
   function conv(k) {
     const raw = $('cl' + k).value; if (raw === '') return null;
-    const F = SG[k] * Math.abs(parseFloat(raw)), d = (parseFloat($('clVd').value) || 0) / 1000;
-    const out = toCL ? F / (1 - d * F) : F / (1 + d * F);
-    return { F, out, r: Math.round(out * 4) / 4 };
+    const S = SG[k] * Math.abs(parseFloat(raw)), C = -Math.abs(parseFloat($('cl' + k + 'C').value) || 0), d = (parseFloat($('clVd').value) || 0) / 1000;
+    const g = F => toCL ? F / (1 - d * F) : F / (1 + d * F);
+    const oS = g(S), oC = g(S + C) - oS;
+    return { S, C, oS, oC, se: oS + oC / 2 };
   }
   function run() {
     const r = conv('r'), l = conv('l');
-    const from = toCL ? '眼鏡度數' : '隱形眼鏡度數', to = toCL ? '隱形眼鏡度數' : '眼鏡度數';
-    const cell = x => `<td class="v">${x ? f(x.r) : '—'}${x ? `<small>精準 ${f(x.out)}</small>` : ''}</td>`;
-    $('clSum').innerHTML = `<div class="meta"><span>${from} 右 <b>${r ? f(r.F) : '—'}</b>　左 <b>${l ? f(l.F) : '—'}</b></span><span>鏡眼距 <b>${$('clVd').value || 0} mm</b></span></div>`
-      + `<table><thead><tr><th></th><th class="v">右眼 R</th><th class="v">左眼 L</th></tr></thead><tbody>`
-      + `<tr class="main"><th>${to}</th>${cell(r)}${cell(l)}</tr></tbody></table>`;
-    $('clNote').textContent = toCL ? '隱形眼鏡 = 眼鏡 ÷ (1 − 鏡眼距 × 眼鏡)，鏡眼距以公尺計。大字取最近 0.25D，小字為精準度數。±4.00D 以內差異很小。'
-      : '眼鏡 = 隱形眼鏡 ÷ (1 + 鏡眼距 × 隱形眼鏡)，鏡眼距以公尺計。大字取最近 0.25D，小字為精準度數。';
+    const from = toCL ? '眼鏡度數' : '隱形眼鏡度數', to = toCL ? '隱形眼鏡' : '眼鏡';
+    const cell = (x, k) => `<td class="v">${x ? f(k === 'oC' ? -Math.abs(q(x[k])) || 0 : q(x[k])) : '—'}${x ? `<small>精準 ${k === 'oC' ? fc(x[k]) : f(x[k])}</small>` : ''}</td>`;
+    const rx = x => x ? `${f(x.S)} ${fc(x.C)}` : '—';
+    // 散光分析：0.75D 以下可用球面等價，1.00D 以上建議散光隱形眼鏡
+    const adv = x => { if (!x) return '—'; const c = Math.abs(q(x.oC)); return c < 0.005 ? '無散光' : c <= 0.75 ? '球面等價即可' : '建議散光片'; };
+    $('clSum').innerHTML = `<div class="meta"><span>${from} 右 <b>${rx(r)}</b>　左 <b>${rx(l)}</b></span><span>鏡眼距 <b>${$('clVd').value || 0} mm</b></span></div>`
+      + `<table><thead><tr><th>${to}</th><th class="v">右眼 R</th><th class="v">左眼 L</th></tr></thead><tbody>`
+      + `<tr class="main"><th>球面</th>${cell(r, 'oS')}${cell(l, 'oS')}</tr>`
+      + `<tr class="main"><th>散光</th>${cell(r, 'oC')}${cell(l, 'oC')}</tr>`
+      + (toCL ? `<tr><th>球面等價</th>${cell(r, 'se')}${cell(l, 'se')}</tr><tr><th>散光分析</th><td class="v adv">${adv(r)}</td><td class="v adv">${adv(l)}</td></tr>` : '')
+      + `</tbody></table>`;
+    $('clNote').textContent = (toCL ? '隱形眼鏡 = 眼鏡 ÷ (1 − 鏡眼距 × 眼鏡)' : '眼鏡 = 隱形眼鏡 ÷ (1 + 鏡眼距 × 隱形眼鏡)')
+      + '，鏡眼距以公尺計。散光以兩條主子午線分別換算：球面換算後，再把「球面＋散光」換算，相減即為換算後散光，軸度不變。大字取最近 0.25D，小字為精準度數。'
+      + (toCL ? '球面等價 = 球面 + 散光 ÷ 2；換算後散光 0.75D 以下可考慮用球面等價配球面隱形眼鏡，1.00D 以上建議配散光隱形眼鏡。' : '');
   }
   run();
 })();
