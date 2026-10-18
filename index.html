@@ -151,6 +151,10 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 .sum tr.main td.v { font-size: 1.5rem; font-weight: 500; }
 .sum tr.sub th, .sum tr.sub td { font-size: .88rem; color: var(--muted); }
 .sum tr.bad td { color: var(--od); font-weight: 700; text-align: right; font-size: 1.1rem; }
+.prow select { flex: 1; min-width: 0; min-height: 40px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font-family: var(--font-num); font-size: 1rem; }
+#bvY { flex: 3 1 0; min-width: 5em; } #bvM { flex: 2 1 0; min-width: 3em; } #bvGrid .plab { white-space: nowrap; } #bvGrid .num input { text-align: center; } #bvGrid .prow .sign button { min-width: 44px; padding: 0 6px; } #bvGrid .prow .sign { flex: none; } #bvGrid .prow { flex-wrap: nowrap; } #bvY ~ .plab { width: auto !important; min-width: 0; }
+#bvSum td.v, #bvSum tr.main th { white-space: nowrap; } #bvSum small, #bvSum tr.main td.v { white-space: normal; } #bvSum th, #bvSum td { padding-left: 10px; padding-right: 10px; }
+#bvSxH { font-size: 1.4rem; color: var(--od); } #bvSx { border: 2px solid var(--od); } .bvx { padding: 16px; display: grid; gap: 10px; background: color-mix(in srgb, var(--od) 6%, var(--paper)); } .bvx + .bvx { border-top: 2px solid var(--od); } .bvx b { color: var(--od); font-size: 1.4rem; } .bvx p { margin: 0; font-size: 1.1rem; line-height: 1.7; color: var(--ink); } .bvx p span { display: block; font-size: .95rem; font-weight: 700; color: var(--accent); }
 .sum td small, .sum th small { display: block; font-size: .72rem; font-weight: 400; color: var(--muted); font-family: var(--font-num); }
 .note { font-size: .82rem; color: var(--muted); margin: 0; }
 .toast { font-size: .85rem; color: var(--accent); min-height: 1.3em; }
@@ -207,7 +211,6 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   <header>
     <h1>雙眼視覺分析</h1>
   </header>
-  <p class="note">尚未設定</p>
 </section>
 
 <section class="sheet home2" id="rgpHome">
@@ -345,6 +348,25 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
     <div class="sum" id="clSum"></div>
     <p class="warn">以上數值為依鏡眼距換算的參考值，實際配戴度數須經戴片追加驗光確認，並由驗光人員判斷調整。</p>
     <p class="note" id="clNote"></p>
+  </section>
+</main>
+
+<main class="sheet" id="bv" hidden>
+  <button type="button" class="back" id="bBack">← 回首頁</button>
+  <header>
+    <h1>雙眼視覺分析</h1>
+  </header>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" class="tab" id="bvTS" aria-selected="true">簡易版</button>
+    <button type="button" role="tab" class="tab" id="bvTP" aria-selected="false">專業版</button>
+  </div>
+  <div class="prx" id="bvGrid"></div>
+  <section class="summary" aria-live="polite">
+    <h2>分析結果</h2>
+    <div class="sum" id="bvSum"></div>
+    <p class="note" id="bvNote"></p>
+    <h2 id="bvSxH">總結</h2>
+    <div class="sum" id="bvSx"></div>
   </section>
 </main>
 
@@ -722,7 +744,7 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   $('goZS').onclick = () => showPage('zs');
 
   const homes = ['clHome', 'home', 'prismHome', 'bvHome', 'rgpHome', 'thkHome'];
-  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya', 'rgp', 'thk']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
+  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya', 'rgp', 'thk', 'bv']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
   $('goPrism').onclick = () => showPage('prism');
   $('pBack').onclick = () => showPage(null);
   $('goCL').onclick = () => showPage('cl');
@@ -733,6 +755,8 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   $('oBack').onclick = () => showPage(null);
   $('rBack').onclick = () => showPage(null);
   $('tBack').onclick = () => showPage(null);
+  $('bBack').onclick = () => showPage(null);
+  $('bvHome').classList.add('tap'); $('bvHome').onclick = () => showPage('bv');
   $('thkHome').classList.add('tap'); $('thkHome').onclick = () => showPage('thk');
   $('rgpHome').classList.add('tap'); $('rgpHome').onclick = () => showPage('rgp');
   // 首頁：點整個標題區塊即進入
@@ -952,6 +976,160 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   $('tkS').addEventListener('change', () => { const i = $('tkS'); if (i.value === '') return; const v = parseFloat(i.value) || 0;
     if (v < 0) { SG = -1; document.querySelectorAll('.sign[data-tks] button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.s === '-1'))); }
     i.value = Math.abs(v).toFixed(2); run(); });
+  run();
+})();
+</script>
+
+<script>
+(() => {
+  // 雙眼視覺分析：常模參考 Morgan / Scheiman，內斜為正、外斜為負
+  const $ = id => document.getElementById(id);
+  const NOW = new Date(), NY = NOW.getFullYear(), NM = NOW.getMonth() + 1;
+  let PRO = false;
+  const box = (id, v, st, mn, mx, dp) => `<div class="num"><button type="button" tabindex="-1" data-bk="-${st}" data-t="${id}" data-dp="${dp}" aria-label="減">▾</button><input type="number" id="${id}" min="${mn}" max="${mx}" step="${st}" inputmode="decimal" value="${v}"><button type="button" tabindex="-1" data-bk="${st}" data-t="${id}" data-dp="${dp}" aria-label="加">▴</button></div>`;
+  const row = (lab, inner, w = 5.5) => `<div class="prow"><span class="plab" style="width:${w}em">${lab}</span>${inner}</div>`;
+  const bibo = k => `<div class="sign" data-bv="${k}" role="group"><button type="button" data-s="-1" aria-pressed="true">BI<small>外斜</small></button><button type="button" data-s="1" aria-pressed="false">BO<small>內斜</small></button></div>`;
+  // 融像範圍：模糊／破裂／恢復，空白模糊點視為 X（無模糊）
+  const one = (id, v, ph) => `<div class="num"><input type="number" id="${id}" min="0" max="60" step="1" inputmode="decimal" value="${v}" placeholder="${ph}" aria-label="${ph}"></div>`;
+  const trio = (lab, k, b, r, c) => row(lab, one(`bv${k}b`, b, '模糊') + one(`bv${k}k`, r, '破裂') + one(`bv${k}r`, c, '恢復'));
+  let yrs = ''; for (let y = NY; y >= NY - 100; y--) yrs += `<option value="${y}"${y === NY - 30 ? ' selected' : ''}>${y}</option>`;
+  let mos = ''; for (let m = 1; m <= 12; m++) mos += `<option value="${m}">${m}</option>`;
+  $('bvGrid').innerHTML = '<fieldset class="peye"><legend class="eye">受檢者</legend>'
+    + row('出生', `<select id="bvY" aria-label="出生西元年">${yrs}</select><span class="plab">年</span><select id="bvM" aria-label="出生月">${mos}</select><span class="plab">月</span>`)
+    + row('年齡', '<b id="bvAge" style="font-family:var(--font-num);font-size:1.2rem"></b>')
+    + row('PD', box('bvPD', '64.0', 0.5, 40, 80, 1) + '<span class="plab">mm</span>') + '</fieldset>'
+    + '<fieldset class="peye"><legend class="eye">聚散系統</legend>'
+    + row('遠方斜位', one('bvD', '1', '遠方斜位') + '<span class="plab">Δ</span>' + bibo('D'), 4.5)
+    + row('近方斜位', one('bvN', '6', '近方斜位') + '<span class="plab">Δ</span>' + bibo('N'), 4.5)
+    + '<div class="bvPro" hidden>' + row('近方斜位<br>加 −1.00', one('bvG', '2', '加 −1.00 近方斜位') + '<span class="plab">Δ</span>' + bibo('G'), 4.5) + '</div></fieldset>'
+    + '<fieldset class="peye bvPro" hidden><legend class="eye">融像範圍 Δ</legend>'
+    + row('', '<span class="plab" style="flex:1;text-align:center">模糊</span><span class="plab" style="flex:1;text-align:center">破裂</span><span class="plab" style="flex:1;text-align:center">恢復</span>')
+    + trio('遠方 BI', 'DI', '', '7', '4') + trio('遠方 BO', 'DO', '9', '19', '10')
+    + trio('近方 BI', 'NI', '13', '21', '13') + trio('近方 BO', 'NO', '17', '21', '11')
+    + row('NPC cm', '<div class="num" style="visibility:hidden" aria-hidden="true"></div>' + one('bvPb', '5', '破裂') + one('bvPr', '7', '恢復')) + '</fieldset>'
+    + '<fieldset class="peye"><legend class="eye">調節系統</legend>'
+    + row('調節幅度', '<div class="sign" data-bva role="group"><button type="button" data-s="0" aria-pressed="true">推進法</button><button type="button" data-s="1" aria-pressed="false">加 ADD 推進法</button></div>')
+    + row('近點距離', box('bvPu', '10.0', 0.5, 2, 100, 1) + '<span class="plab">cm</span>')
+    + row('ADD', box('bvAdd', '1.00', 0.25, 0, 4, 2) + '<span class="plab">D</span>')
+    + row('FCC', box('bvF', '0.50', 0.25, -2, 3, 2) + '<span class="plab">D</span>')
+    + row('NRA 模糊點', box('bvNRA', '2.00', 0.25, 0, 5, 2) + '<span class="plab">D</span>')
+    + row('PRA 模糊點', box('bvPRA', '-2.50', 0.25, -8, 0, 2) + '<span class="plab">D</span>') + '</fieldset>';
+  // 總結用：[可能症狀, 改善方法]
+  const TYPES = {
+    '集合不足': ['近距離閱讀或用手機久了眼睛痠累、頭痛，字會跳動或重影，閱讀容易分心、想睡。', '視覺訓練為主（推近訓練、聚散球、BO 融像訓練）；訓練效果不足時可考慮近用 BI 稜鏡。'],
+    '集合過度': ['近距離工作眼痠、頭痛，看近模糊或重影，閱讀無法持久。', '近用正度數（ADD）或多焦點鏡片為主，可搭配 BI 融像訓練；必要時近用 BO 稜鏡。'],
+    '開散過度': ['看遠時一眼偶爾外飄或重影，強光下常瞇一眼，看近反而較舒服。', 'BO 融像訓練；近視需足量矯正；必要時遠用 BI 稜鏡。'],
+    '開散不足': ['看遠重影、頭痛，開車或看遠處招牌時特別不舒服。', '遠用 BO 稜鏡為主，可搭配 BI 融像訓練。'],
+    '基本型外斜': ['遠近都容易眼睛疲勞、重影，長時間用眼後不適。', 'BO 融像訓練為主；必要時遠近都加 BI 稜鏡。'],
+    '基本型內斜': ['遠近都容易眼睛疲勞、頭痛、重影。', 'BO 稜鏡為主，近用可加正度數，搭配 BI 融像訓練。'],
+    '遠近斜位方向不同': ['遠近斜位一內一外，症狀不一定。', '建議重新測量斜位，並配合融像範圍檢查再判斷。'],
+    '調節不足': ['看近模糊、眼痠、頭痛，閱讀無法持久，容易疲倦。', '近用正度數（ADD）；調節訓練（翻轉拍、推近訓練）。'],
+    '調節過度': ['遠近視力時好時壞，近距離工作後看遠模糊，眼痠頭痛。', '調節放鬆訓練；避免近視過矯；必要時以睫狀肌麻痺驗光確認度數。'],
+    '調節靈活度不足': ['遠近切換時對焦慢、短暫模糊，閱讀久了疲勞。', '翻轉拍（±2.00D）訓練、遠近交替注視訓練。'],
+    '老花': ['看近模糊，需要把東西拿遠才看得清楚，光線暗時更明顯。', '配近用或多焦點（漸進）鏡片。']
+  };
+  const SG = { D: -1, N: -1, G: -1 };
+  let WADD = false;
+  const num = id => { const v = $(id).value; return v === '' ? null : parseFloat(v); };
+  const ph = v => v === null ? '—' : v === 0 ? '正位' : `${Math.abs(v)}Δ ${v < 0 ? '外斜' : '內斜'}`;
+  const sd = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(2);
+  const st = (v, lo, hi, l, h) => v === null ? '' : v < lo ? l : v > hi ? h : '正常';
+  const rg = k => [num(`bv${k}b`), num(`bv${k}k`), num(`bv${k}r`)];
+  const rgTxt = a => a.map(v => v === null ? 'X' : v).join('/');
+  const lim = a => a[0] !== null ? a[0] : a[1];  // 有模糊點用模糊點，沒有用破裂點
+  const pz = v => v <= 0 ? '不需稜鏡' : `${(Math.ceil(v * 2) / 2).toFixed(1)}Δ`;
+  function run() {
+    const age = Math.max(0, NY - Number($('bvY').value) - (NM < Number($('bvM').value) ? 1 : 0));
+    $('bvAge').textContent = age + ' 歲';
+    const pd = num('bvPD'), dv = num('bvD'), nv = num('bvN'), F = num('bvF'), NRA = num('bvNRA'), PRA = num('bvPRA') === null ? null : -Math.abs(num('bvPRA'));
+    const D = dv === null ? null : SG.D * Math.abs(dv), N = nv === null ? null : SG.N * Math.abs(nv);
+    // 計算法 AC/A = PD(cm) + (近方斜位 − 遠方斜位) ÷ 2.5D（40cm）
+    const aca = pd === null || D === null || N === null ? null : pd / 10 + (N - D) / 2.5;
+    const amp = Math.max(0, 15 - 0.25 * age);
+    const sD = st(D, -3, 1, '偏外斜', '偏內斜'), sN = st(N, -6, 0, '偏外斜', '偏內斜');
+    const sA = aca === null ? '' : aca < 3 ? '偏低' : aca > 5 ? '偏高' : '正常';
+    const sF = F === null ? '' : F < 0.25 ? (F < 0 ? '調節超前' : '偏低') : F > 0.75 ? '調節遲滯偏高' : '正常';
+    const sNR = st(NRA, 1.5, 2.5, '偏低', '偏高'), sPR = PRA === null ? '' : -PRA < 1.37 ? '偏低' : '正常';
+    // 聚散初步判讀
+    let vg = '聚散在正常範圍';
+    const dOut = sD !== '正常' && sD !== '', nOut = sN !== '正常' && sN !== '';
+    if (dOut && nOut) vg = D < 0 && N < 0 ? (aca > 5 ? '疑似開散過度' : '疑似基本型外斜') : D > 0 && N > 0 ? (aca < 3 ? '疑似開散不足' : '疑似基本型內斜') : '遠近斜位方向不同，建議複查';
+    else if (nOut) vg = N < 0 ? '疑似集合不足' : '疑似集合過度';
+    else if (dOut) vg = D < 0 ? '疑似開散過度' : '疑似開散不足';
+    // 調節初步判讀
+    // 調節幅度 = 100 ÷ 近點距離(cm)，加 ADD 推進法再減 ADD
+    $('bvAdd').closest('.prow').hidden = !WADD;
+    const add = WADD ? num('bvAdd') || 0 : 0, pu = num('bvPu');
+    const ampV = pu ? 100 / pu - add : null, sAmp = ampV === null ? '' : ampV < amp ? '偏低' : '正常';
+    let ac = '調節在正常範圍';
+    const lowN = sNR === '偏低', lowP = sPR === '偏低';
+    if ((F !== null && F > 0.75 && lowP) || (sAmp === '偏低' && age < 40)) ac = '疑似調節不足';
+    else if (F !== null && F < 0.25 && lowN) ac = '疑似調節過度';
+    else if (lowN && lowP) ac = '疑似調節靈活度不足';
+    if (age >= 40) ac += '（已屆老花年齡，調節數值會偏低）';
+    const presby = age >= 40 && sAmp === '偏低';
+    const tr = (k, v, n, s) => `<tr><th>${k}<small>常模 ${n}</small></th><td class="v">${v}</td><td class="v"${s && s !== '正常' ? ' style="color:var(--od);font-weight:700"' : ''}>${s || '—'}</td></tr>`;
+    const big = (k, v) => `<tr class="main"><th>${k}</th><td class="v" colspan="2" style="font-size:1.1rem">${v}</td></tr>`;
+    let h = `<div class="meta"><span>年齡 <b>${age} 歲</b></span><span>PD <b>${pd === null ? '—' : pd.toFixed(1)} mm</b></span><span>預期最低調節幅度 <b>${amp.toFixed(2)} D</b></span></div>`
+      + '<table><thead><tr><th>項目</th><th class="v">數值</th><th class="v">判斷</th></tr></thead><tbody>'
+      + big('聚散系統', vg)
+      + tr('遠方斜位', ph(D), '1Δ 外斜 ± 2', sD) + tr('近方斜位', ph(N), '3Δ 外斜 ± 3', sN)
+      + tr('AC/A（計算法）', aca === null ? '—' : aca.toFixed(1) + ' : 1', '4 : 1 ± 1', sA);
+    if (PRO) {
+      const gv = num('bvG'), G = gv === null ? null : SG.G * Math.abs(gv);
+      // 梯度法 AC/A：加 −1.00 後斜位往內斜的變化量
+      const gr = G === null || N === null ? null : G - N;
+      const R = { DI: rg('DI'), DO: rg('DO'), NI: rg('NI'), NO: rg('NO') };
+      const low = (a, m) => a[1] === null ? '' : a[1] < m ? '偏低' : '正常';
+      const pb = num('bvPb'), pr = num('bvPr');
+      // Sheard：補償範圍（外斜看 BO、內斜看 BI）≥ 2 × 斜位，需稜鏡 = (2 × 斜位 − 補償範圍) ÷ 3
+      const sheard = (p, bi, bo) => { if (p === null) return '—'; if (p === 0) return '不需稜鏡'; const r = lim(p < 0 ? bo : bi); if (r === null) return '—'; const v = (2 * Math.abs(p) - r) / 3; return v <= 0 ? '不需稜鏡' : `${pz(v)} ${p < 0 ? 'BI' : 'BO'}`; };
+      // 1:1 法則（內斜用）：BI 恢復點 ≥ 內斜量，需稜鏡 = (內斜 − BI 恢復點) ÷ 2，基底朝外
+      const one1 = (p, bi) => { if (p === null) return '—'; if (p <= 0) return '僅適用內斜'; if (bi[2] === null) return '—'; const v = (p - bi[2]) / 2; return v <= 0 ? '不需稜鏡' : `${pz(v)} BO`; };
+      // 外斜跑 Sheard、內斜跑 1:1，正位不需稜鏡
+      const rule = (k, p, bi, bo) => p === null ? big(k, '—') : p < 0 ? big('Sheard ' + k, sheard(p, bi, bo)) : p > 0 ? big('1:1 ' + k, one1(p, bi)) : big(k, '正位，不需稜鏡');
+      // Percival：較小側 ≥ 較大側 ÷ 2，需稜鏡 = (較大側 − 2 × 較小側) ÷ 3，基底朝較大側
+      const bi = lim(R.NI), bo = lim(R.NO);
+      let perc = '—';
+      if (bi !== null && bo !== null) { const Gt = Math.max(bi, bo), L = Math.min(bi, bo), v = (Gt - 2 * L) / 3; perc = v <= 0 ? '不需稜鏡' : `${pz(v)} ${bi > bo ? 'BI' : 'BO'}`; }
+      h += tr('AC/A（梯度法）', gr === null ? '—' : gr.toFixed(1) + ' : 1', '4 : 1 ± 2', gr === null ? '' : gr < 2 ? '偏低' : gr > 6 ? '偏高' : '正常')
+        + tr('遠方 BI', rgTxt(R.DI), 'X/7/4', low(R.DI, 4)) + tr('遠方 BO', rgTxt(R.DO), '9/19/10', low(R.DO, 11))
+        + tr('近方 BI', rgTxt(R.NI), '13/21/13', low(R.NI, 17)) + tr('近方 BO', rgTxt(R.NO), '17/21/11', low(R.NO, 15))
+        + tr('NPC', `${pb === null ? '—' : pb} / ${pr === null ? '—' : pr} cm`, '破裂 5 / 恢復 7 cm', pb === null ? '' : pb > 5 ? '偏遠' : '正常')
+        + rule('遠方', D, R.DI, R.DO) + rule('近方', N, R.NI, R.NO) + big('Percival 近方', perc);
+    }
+    h += big('調節系統', ac);
+    h += tr('調節幅度', ampV === null ? '—' : ampV.toFixed(2) + ' D' + `<small>${WADD ? '加 ADD 推進法' : '推進法'}</small>`, `最低 ${amp.toFixed(2)} D`, sAmp);
+    h += tr('FCC', F === null ? '—' : sd(F), '+0.50 ± 0.25', sF) + tr('NRA', NRA === null ? '—' : sd(NRA), '+2.00 ± 0.50', sNR) + tr('PRA', PRA === null ? '—' : sd(PRA), '−2.37 ± 1.00', sPR)
+      + '</tbody></table>';
+    $('bvSum').innerHTML = h;
+    // 總結：只列異常型態
+    const ks = [];
+    if (vg.startsWith('疑似')) ks.push(vg.slice(2)); else if (vg.startsWith('遠近')) ks.push('遠近斜位方向不同');
+    if (ac.startsWith('疑似')) ks.push(ac.slice(2).replace(/（.*$/, ''));
+    if (presby) ks.push('老花');
+    $('bvSx').innerHTML = ks.length ? ks.map(k => `<div class="bvx"><b>${k}</b><p><span>可能症狀</span>${TYPES[k][0]}</p><p><span>改善方法</span>${TYPES[k][1]}</p></div>`).join('')
+      : '<div class="bvx"><p>未發現異常型態。</p></div>';
+    $('bvNote').textContent = '常模參考 Morgan 與 Scheiman。計算法 AC/A = PD(cm) + (近方斜位 − 遠方斜位) ÷ 2.5，內斜為正、外斜為負。預期最低調節幅度 = 15 − 0.25 × 年齡（Hofstetter）。調節幅度 = 100 ÷ 近點距離(cm)，加 ADD 推進法再減去 ADD。'
+      + (PRO ? '梯度法 AC/A = 加 −1.00 後近方斜位 − 原近方斜位。融像範圍以破裂點判斷，模糊點空白視為 X。外斜用 Sheard，內斜用 1:1 法則，Percival 內外斜都算。Sheard：補償範圍需 ≥ 2 倍斜位，稜鏡 = (2 × 斜位 − 補償範圍) ÷ 3，補償範圍有模糊點用模糊點、沒有用破裂點。Percival：較小側需 ≥ 較大側的一半，稜鏡 = (較大側 − 2 × 較小側) ÷ 3。1:1 法則用於內斜：BI 恢復點需 ≥ 內斜量，稜鏡 = (內斜 − BI 恢復點) ÷ 2，基底朝外。'
+        : '判讀僅依斜位、調節幅度、FCC、NRA、PRA 推估，確診需配合融像範圍、NPC 與調節靈活度等檢查，可用專業版。');
+  }
+  const tab = p => { PRO = p; $('bvTS').setAttribute('aria-selected', String(!p)); $('bvTP').setAttribute('aria-selected', String(p)); document.querySelectorAll('#bvGrid .bvPro').forEach(x => x.hidden = !p); run(); };
+  $('bvTS').onclick = () => tab(false); $('bvTP').onclick = () => tab(true);
+  document.querySelectorAll('.sign[data-bv]').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => {
+    SG[g.dataset.bv] = Number(b.dataset.s); g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); run();
+  }));
+  document.querySelectorAll('.sign[data-bva] button').forEach(b => b.onclick = () => {
+    WADD = b.dataset.s === '1'; document.querySelectorAll('.sign[data-bva] button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); run();
+  });
+  document.querySelectorAll('[data-bk]').forEach(b => b.onclick = () => {
+    const i = $(b.dataset.t), dp = Number(b.dataset.dp);
+    let v = Math.round(((parseFloat(i.value) || 0) + Number(b.dataset.bk)) * 100) / 100;
+    v = Math.min(Number(i.max), Math.max(Number(i.min), v));
+    i.value = v.toFixed(dp); run();
+  });
+  document.querySelectorAll('#bvGrid input, #bvGrid select').forEach(i => i.addEventListener('input', run));
+  $('bvPRA').addEventListener('change', () => { const i = $('bvPRA'); if (i.value === '') return; i.value = (-Math.abs(parseFloat(i.value) || 0)).toFixed(2); run(); });
   run();
 })();
 </script>
