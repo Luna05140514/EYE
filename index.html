@@ -441,6 +441,7 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   <div class="lklist">
     <a class="brand wide" href="https://visual.narwhallab.workers.dev/" target="_blank" rel="noopener"><b>視知覺 ↗</b></a>
     <a class="brand wide" href="https://scl.narwhallab.workers.dev/" target="_blank" rel="noopener"><b>隱形眼鏡比較 ↗</b></a>
+    <a class="brand wide" href="https://price-list.narwhallab.workers.dev/" target="_blank" rel="noopener"><b>鏡片價目表 ↗</b></a>
   </div>
 </main>
 
@@ -1335,7 +1336,7 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 <button type="button" class="updbar" id="updBar" hidden>有新版本，點這裡更新</button>
 <script>
 (() => {
-  const APP_BUILD = '1792514145';
+  const APP_BUILD = '1794239504';
   const hard = async () => {
     if (!APP_BUILD) { location.reload(); return; }
     try { if (navigator.serviceWorker) for (const r of await navigator.serviceWorker.getRegistrations()) await r.unregister(); } catch (e) {}
