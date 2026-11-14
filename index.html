@@ -175,7 +175,7 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 #clSum th, #clSum td.v { white-space: nowrap; } #clSum td.adv { font-size: .85rem; }
 /* 鎖住點兩下放大 */
 *, *::before, *::after { touch-action: manipulation; }
-#bvY { flex: 3 1 0; min-width: 5em; } #bvM { flex: 2 1 0; min-width: 3em; } #bvGrid .plab { white-space: nowrap; } #bvGrid .num input { text-align: center; } #wrGrid .prow { flex-wrap: nowrap; } #wrGrid .plab, #wrSum th, #wrSum td { white-space: nowrap; } #wrSum th, #wrSum td { padding-left: 8px; padding-right: 8px; } #wrGrid .prow .sign[data-wrn] { flex: 1; flex-wrap: wrap; } #wrGrid .prow .sign[data-wrn] button { min-width: 48px; padding: 0 6px; } #bvGrid .prow .sign button { min-width: 44px; padding: 0 6px; } #bvGrid .prow .sign { flex: none; } #bvGrid .prow { flex-wrap: nowrap; } #bvY ~ .plab { width: auto !important; min-width: 0; }
+#bvY { flex: 3 1 0; min-width: 5em; } #bvM { flex: 2 1 0; min-width: 3em; } #bvGrid .plab { white-space: nowrap; } #bvGrid .num input { text-align: center; } #bvGrid .prow .sign button { min-width: 44px; padding: 0 6px; } #bvGrid .prow .sign { flex: none; } #bvGrid .prow { flex-wrap: nowrap; } #bvY ~ .plab { width: auto !important; min-width: 0; }
 #bvSum td.v, #bvSum tr.main th { white-space: nowrap; } #bvSum small, #bvSum tr.main td.v { white-space: normal; } #bvSum th, #bvSum td { padding-left: 10px; padding-right: 10px; }
 #bvLogic td, #bvLogic th { padding: 8px 10px; font-size: .88rem; line-height: 1.5; vertical-align: top; } #bvLogic td b { color: var(--od); } #bvLogic .acp .hd td { font-size: .75rem; color: var(--muted); font-weight: 700; } #bvLogic .acp .pri td { background: color-mix(in srgb, var(--od) 8%, transparent); } #bvLogic .acp td.a { white-space: nowrap; } #bvLogic .acp td.k { font-weight: 700; color: var(--accent); border-right: 1px solid var(--line); } #bvSxH { font-size: 1.4rem; color: var(--od); } #bvSx { border: 2px solid var(--od); } .bvx { padding: 16px; display: grid; gap: 10px; background: color-mix(in srgb, var(--od) 6%, var(--paper)); } .bvx + .bvx { border-top: 2px solid var(--od); } .bvx b { color: var(--od); font-size: 1.4rem; } .bvx p { margin: 0; font-size: 1.1rem; line-height: 1.7; color: var(--ink); } .bvx p span { display: block; font-size: .95rem; font-weight: 700; color: var(--accent); }
 .sum td small, .sum th small { display: block; font-size: .72rem; font-weight: 400; color: var(--muted); font-family: var(--font-num); }
@@ -242,12 +242,6 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 <section class="sheet home2" id="rgpHome">
   <header>
     <h1>RGP</h1>
-  </header>
-</section>
-
-<section class="sheet home2" id="wrHome">
-  <header>
-    <h1>鏡框彎度和傾斜角修正值</h1>
   </header>
 </section>
 
@@ -445,20 +439,6 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   </div>
 </main>
 
-<main class="sheet" id="wr" hidden>
-  <button type="button" class="back" id="wBack">← 回首頁</button>
-  <header>
-    <h1>鏡框彎度和傾斜角修正值</h1>
-  </header>
-  <p class="warn">本工具僅供參考，實際訂片度數須由驗光人員評估，並以鏡片廠商的配戴位置補償計算為準。</p>
-  <div class="prx" id="wrGrid"></div>
-  <section class="summary" aria-live="polite">
-    <h2>修正後新度數</h2>
-    <div class="sum" id="wrSum"></div>
-    <p class="warn">以上為公式推算的參考值，實際效果會因鏡片設計、鏡眼距與配戴位置而不同，請以實際驗光與廠商計算為準。</p>
-    <p class="note">先把度數從驗光時的頂點距離 12mm 換算到實際配戴的頂點距離（兩條主子午線各自換算）。再依 Martin 公式計算傾斜影響：傾斜後球面 = 度數 × (1 + sin²θ ÷ 3n)，另產生散光 = 傾斜後球面 × tan²θ；傾斜角產生的散光軸在 180°，鏡框彎度的在 90°，n 以 1.60 估算（折射率對結果影響極小）。結果是反推出戴上後效果等於原度數的新度數，直接顯示精準度數，散光取負散光表示。</p>
-  </section>
-</main>
 
 <main class="sheet" id="thk" hidden>
   <button type="button" class="back" id="tBack">← 回首頁</button>
@@ -655,16 +635,16 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   const abox = (id, val, max, step, unit) => `<div class="num"><input type="number" id="${id}" min="0" max="${max}" step="${step}" inputmode="decimal" value="${val}"></div><span class="plab">${unit}</span>`;
   $('agrid').innerHTML = AE.map(e => `<fieldset class="peye"><legend class="eye ${e.cls}">${e.name}<small>${e.tag}</small></legend>
     <div class="prow"><span class="plab">角度</span>${abox('a' + e.k + 'a', e.a, 359, 1, '°')}</div>
-    <div class="prow"><span class="plab">稜鏡</span><div class="num"><button type="button" tabindex="-1" data-astep="-0.5" data-t="a${e.k}p" aria-label="減 0.5">−</button><input type="number" id="a${e.k}p" min="0" max="20" step="0.5" inputmode="decimal" value="${e.p.toFixed(2)}"><button type="button" tabindex="-1" data-astep="0.5" data-t="a${e.k}p" aria-label="加 0.5">+</button></div><span class="plab">Δ</span></div></fieldset>`).join('');
+    <div class="prow"><span class="plab">稜鏡</span><div class="num"><button type="button" tabindex="-1" data-astep="-0.25" data-t="a${e.k}p" aria-label="減 0.25">−</button><input type="number" id="a${e.k}p" min="0" max="20" step="0.25" inputmode="decimal" value="${e.p.toFixed(2)}"><button type="button" tabindex="-1" data-astep="0.25" data-t="a${e.k}p" aria-label="加 0.25">+</button></div><span class="plab">Δ</span></div></fieldset>`).join('');
   document.querySelectorAll('#agrid input').forEach(i => i.addEventListener('input', ident));
   document.querySelectorAll('#agrid [data-astep]').forEach(b => b.onclick = () => {
     const i = $(b.dataset.t);
-    i.value = Math.max(0, Math.min(20, Math.round(((parseFloat(i.value) || 0) + Number(b.dataset.astep)) * 2) / 2)).toFixed(2);
+    i.value = Math.max(0, Math.min(20, Math.round(((parseFloat(i.value) || 0) + Number(b.dataset.astep)) * 4) / 4)).toFixed(2);
     ident();
   });
   ['arp', 'alp'].forEach(id => $(id).addEventListener('change', () => {
     const i = $(id); if (i.value === '') return;
-    i.value = Math.min(20, Math.round(Math.abs(parseFloat(i.value) || 0) * 2) / 2).toFixed(2); ident();
+    i.value = Math.min(20, Math.round(Math.abs(parseFloat(i.value) || 0) * 4) / 4).toFixed(2); ident();
   }));
   function decode(k) {
     const av = $('a' + k + 'a').value;
@@ -852,8 +832,8 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   let t;
   $('goZS').onclick = () => showPage('zs');
 
-  const homes = ['clHome', 'home', 'prismHome', 'bvHome', 'rgpHome', 'thkHome', 'wrHome', 'lkHome'];
-  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya', 'rgp', 'thk', 'bv', 'wr', 'lk']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
+  const homes = ['clHome', 'home', 'prismHome', 'bvHome', 'rgpHome', 'thkHome', 'lkHome'];
+  const showPage = id => { homes.concat(['office', 'zs', 'prism', 'cl', 'hoya', 'rgp', 'thk', 'bv', 'lk']).forEach(x => $(x).hidden = id ? x !== id : !homes.includes(x)); scrollTo(0, 0); };
   $('goPrism').onclick = () => showPage('prism');
   $('pBack').onclick = () => showPage(null);
   $('goCL').onclick = () => showPage('cl');
@@ -865,8 +845,6 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
   $('rBack').onclick = () => showPage(null);
   $('tBack').onclick = () => showPage(null);
   $('bBack').onclick = () => showPage(null);
-  $('wBack').onclick = () => showPage(null);
-  $('wrHome').classList.add('tap'); $('wrHome').onclick = () => showPage('wr');
   $('lkHome').classList.add('tap'); $('lkHome').onclick = () => showPage('lk');
   $('lkBack').onclick = () => showPage(null);
   $('bvHome').classList.add('tap'); $('bvHome').onclick = () => showPage('bv');
@@ -1276,67 +1254,12 @@ pre#out { margin: 0; padding: 14px 16px; background: var(--bg); border-radius: 6
 })();
 </script>
 
-<script>
-(() => {
-  // 鏡框彎度、前傾角與頂點距離修正：先換算頂點距離，再用 Martin 斜向公式反推補償度數
-  const $ = id => document.getElementById(id);
-  const N = 1.6, REF = 12;  // 折射率以 1.60 估算（影響極小）；驗光時頂點距離 12mm
-  const box = (id, v, st, mn, mx, dp) => `<div class="num"><button type="button" tabindex="-1" data-wk="-${st}" data-t="${id}" data-dp="${dp}" aria-label="減">▾</button><input type="number" id="${id}" min="${mn}" max="${mx}" step="${st}" inputmode="decimal" value="${v}"><button type="button" tabindex="-1" data-wk="${st}" data-t="${id}" data-dp="${dp}" aria-label="加">▴</button></div>`;
-  const row = (lab, inner) => `<div class="prow"><span class="plab" style="width:5em">${lab}</span>${inner}</div>`;
-  const eye = (k, S, C, A) => '<fieldset class="peye"><legend class="eye">度數</legend>'
-    + row('球面', box(`wr${k}S`, S, 0.25, -20, 20, 2) + '<span class="plab">D</span>')
-    + row('散光', box(`wr${k}C`, C, 0.25, -6, 0, 2) + '<span class="plab">D</span>')
-    + row('軸度', box(`wr${k}A`, A, 5, 1, 180, 0) + '<span class="plab">°</span>') + '</fieldset>';
-  $('wrGrid').innerHTML = eye('R', '-4.00', '-1.00', '180')
-    + '<fieldset class="peye"><legend class="eye">鏡框配戴</legend>'
-    + row('傾斜角', box('wrT', '10', 1, 0, 25, 0) + '<span class="plab">°</span>')
-    + row('鏡框彎度', box('wrW', '5', 1, 0, 30, 0) + '<span class="plab">°</span>')
-    + row('頂點距離', box('wrV', '12', 0.5, 5, 25, 1) + '<span class="plab">mm</span>') + '</fieldset>';
-  const num = id => { const v = $(id).value; return v === '' ? null : parseFloat(v); };
-  const rad = d => d * Math.PI / 180;
-  const toV = (S, C, A) => [S + C / 2, -C / 2 * Math.cos(2 * rad(A)), -C / 2 * Math.sin(2 * rad(A))];
-  const fromV = ([M, J0, J45]) => { const C = -2 * Math.hypot(J0, J45); let A = Math.round(0.5 * Math.atan2(J45, J0) * 180 / Math.PI); if (A <= 0) A += 180; return [M - C / 2, C, A]; };
-  // 頂點距離：兩條主子午線各自換算 F' = F ÷ (1 − x·F)，x = (12 − 配戴距離) ÷ 1000
-  const vx = (S, C, A, d) => { const x = (REF - d) / 1000, g = F => F / (1 - x * F), s1 = g(S), s2 = g(S + C); return [s1, s2 - s1, A]; };
-  // 傾斜：前傾繞水平軸（產生散光軸 180），彎度繞垂直軸（產生散光軸 90）
-  const tilt = (v, th, ax) => { const t = rad(th), M = v[0], Sn = M * (1 + Math.sin(t) ** 2 / (3 * N)), Ci = Sn * Math.tan(t) ** 2;
-    return [v[0] + (Sn - M) + Ci / 2, v[1] + (ax === 180 ? -Ci / 2 : Ci / 2), v[2]]; };
-  const eff = (v, T, W) => tilt(tilt(v, T, 180), W, 90);
-  const f = v => Math.abs(v) < 0.005 ? '0.00' : (v > 0 ? '+' : '−') + Math.abs(v).toFixed(2);
-  function calc(k, T, W, d) {
-    const S = num(`wr${k}S`); if (S === null) return null;
-    const C = -Math.abs(num(`wr${k}C`) || 0), A = num(`wr${k}A`) || 180;
-    const target = toV(...vx(S, C, A, d));
-    // 反推：找出戴上傾斜後剛好等於目標度數的訂片度數
-    let c = target.slice();
-    for (let i = 0; i < 30; i++) { const e = eff(c, T, W); c = c.map((x, j) => x + target[j] - e[j]); }
-    return fromV(c);
-  }
-  function run() {
-    const T = num('wrT') || 0, W = num('wrW') || 0, d = num('wrV') ?? REF;
-    const tr = (name, r) => r === null ? `<tr><th>${name}</th><td class="v" colspan="3">—</td></tr>`
-      : `<tr class="main"><th>${name}</th><td class="v">${f(r[0])}</td><td class="v">${f(r[1])}</td><td class="v">${Math.abs(r[1]) < 0.005 ? '—' : r[2]}</td></tr>`;
-    $('wrSum').innerHTML = `<div class="meta"><span>傾斜角 <b>${T}°</b></span><span>鏡框彎度 <b>${W}°</b></span><span>頂點距離 <b>${d} mm</b></span></div>`
-      + '<table><thead><tr><th></th><th class="v">球面</th><th class="v">散光</th><th class="v">軸度</th></tr></thead><tbody>'
-      + tr('新度數', calc('R', T, W, d)) + '</tbody></table>';
-  }
-  document.querySelectorAll('[data-wk]').forEach(b => b.onclick = () => {
-    const i = $(b.dataset.t), dp = Number(b.dataset.dp);
-    let v = Math.round(((parseFloat(i.value) || 0) + Number(b.dataset.wk)) * 100) / 100;
-    v = Math.min(Number(i.max), Math.max(Number(i.min), v));
-    i.value = v.toFixed(dp); run();
-  });
-  document.querySelectorAll('#wrGrid input').forEach(i => i.addEventListener('input', run));
-  ['wrRC'].forEach(id => $(id).addEventListener('change', () => { const i = $(id); if (i.value === '') return; i.value = (-Math.abs(parseFloat(i.value) || 0)).toFixed(2); run(); }));
-  run();
-})();
-</script>
 
 <footer class="credit">由 TONY 驗光師 設計開發</footer>
 <button type="button" class="updbar" id="updBar" hidden>有新版本，點這裡更新</button>
 <script>
 (() => {
-  const APP_BUILD = '1794239504';
+  const APP_BUILD = '1794628109';
   const hard = async () => {
     if (!APP_BUILD) { location.reload(); return; }
     try { if (navigator.serviceWorker) for (const r of await navigator.serviceWorker.getRegistrations()) await r.unregister(); } catch (e) {}
